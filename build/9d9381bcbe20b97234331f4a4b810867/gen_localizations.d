@@ -1,0 +1,1 @@
+ D:\\FlutterApps\\NetChui\\lib\\l10n\\app_localizations_en.dart D:\\FlutterApps\\NetChui\\lib\\l10n\\app_localizations.dart:  D:\\FlutterApps\\NetChui\\l10n.yaml D:\\FlutterApps\\NetChui\\lib\\l10n\\app_en.arb

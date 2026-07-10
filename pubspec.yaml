@@ -1,0 +1,66 @@
+name: net_chui
+description: "NetChui — A beautiful Flutter internet speed test app (download, upload, ping)."
+
+publish_to: 'none'
+
+version: 1.0.1+2
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  connectivity_plus: ^6.1.4
+  flutter_local_notifications: ^18.0.1
+  flutter_secure_storage: ^9.0.0
+  google_fonts: ^6.2.1
+  http: ^1.2.2
+  intl: ^0.20.2
+  share_plus: ^10.1.4
+  package_info_plus: ^8.1.0
+  device_info_plus: ^11.2.2
+  shared_preferences: ^2.5.3
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1
+  path_provider: ^2.1.5
+  timezone: ^0.10.1
+  crypto: ^3.0.0
+  fl_chart: ^0.70.2
+  network_info_plus: ^6.1.4
+  carrier_info: ^2.0.8
+  wifi_scan: ^0.4.1+2
+  ping_discover_network_plus: ^0.0.5
+  permission_handler: ^11.3.1
+  screenshot: ^3.0.0
+  pdf: ^3.11.1
+  printing: ^5.13.2
+  provider: ^6.1.2
+  shimmer: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  mocktail: ^1.0.0
+  flutter_lints: ^6.0.0
+  isar_generator: ^3.1.0+1
+  build_runner: any
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  image_path: "assets/tiger.jpg"
+  android: true
+  ios: true
+  remove_alpha_ios: true
+
+flutter:
+  generate: true
+  uses-material-design: true
+  assets:
+    - assets/tiger.jpg
