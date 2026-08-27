@@ -3,7 +3,6 @@ import 'package:net_chui/app/app_state.dart';
 import 'package:net_chui/models/speed_test_result.dart';
 import 'package:net_chui/screens/diagnostics_screen.dart';
 import 'package:net_chui/screens/dns_speed_test_screen.dart';
-import 'package:net_chui/screens/history_screen.dart';
 import 'package:net_chui/screens/lan_scanner_screen.dart';
 import 'package:net_chui/screens/live_monitor_screen.dart';
 import 'package:net_chui/theme/app_theme.dart';
@@ -12,6 +11,7 @@ import 'package:net_chui/widgets/base_modal.dart';
 import 'package:net_chui/widgets/gradient_background.dart';
 import 'package:net_chui/widgets/signal_chart.dart';
 import 'package:net_chui/widgets/scan_radar.dart';
+import 'package:net_chui/widgets/app_logo.dart';
 import 'package:net_chui/widgets/offline_overlay.dart';
 import 'package:net_chui/widgets/sparkline_chart.dart';
 import 'package:net_chui/widgets/glass_card.dart';
@@ -82,40 +82,19 @@ class _ScanScreenState extends State<ScanScreen> {
                       ],
                       Center(
                         child: GestureDetector(
-                                onTap: _isScanning ? null : _startScan,
-                                child: Hero(
-                                  tag: 'app_logo',
-                                  child: Container(
-                                    width: 80,
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: (_isScanning ? context.netChui.accent : context.netChui.border).withValues(alpha: 0.5),
-                                        width: 3,
-                                      ),
-                                      boxShadow: [
-                                        if (_isScanning)
-                                          BoxShadow(
-                                            color: context.netChui.accent.withValues(alpha: 0.2),
-                                            blurRadius: 20,
-                                            spreadRadius: 5,
-                                          ),
-                                      ],
-                                    ),
-                                    child: ClipOval(
-                                      child: Image.asset(
-                                        'assets/tiger.jpg',
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                          onTap: _isScanning ? null : _startScan,
+                          child: Hero(
+                            tag: 'app_logo',
+                            child: AppLogo(
+                              size: 80,
+                              showBackground: true,
                             ),
-                            const SizedBox(height: Spacing.xl),
-                            _buildScanRadar(context),
-                            const SizedBox(height: Spacing.xl),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: Spacing.xl),
+                      _buildScanRadar(context),
+                      const SizedBox(height: Spacing.xl),
                       _buildInfoCard(
                         context,
                         title: s.signalStability,
@@ -155,50 +134,50 @@ class _ScanScreenState extends State<ScanScreen> {
                         const SizedBox(height: Spacing.xl),
                       ],
                       _buildInfoCard(
-                              context,
-                              title: s.networkDetails,
-                              icon: Icons.signal_cellular_alt_rounded,
-                              onTap: () async {
-                                HapticService.selection();
-                                if (context.mounted) {
-                                  _showNetworkDetails(context, info);
-                                }
-                              },
-                              child: Column(
-                                children: [
-                                  _ScanRow(label: AppState.instance.strings.connection, value: state.connectionLabel),
-                                  if (info.networkGeneration != null)
-                                    _ScanRow(label: AppState.instance.strings.radio, value: info.networkGeneration!),
-                                  _ScanRow(label: AppState.instance.strings.carrier, value: info.carrierName ?? 'N/A'),
-                                  if (state.connectionLabel.contains('Wi‑Fi')) ...[
-                                    _ScanRow(label: s.ssid, value: info.wifiSsid ?? s.unknown),
-                                    _ScanRow(label: s.signalStrength, value: '${info.rssi ?? '—'} dBm'),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: Spacing.xl),
-                            _buildInfoCard(
-                              context,
-                              title: s.recommendations,
-                              icon: Icons.tips_and_updates_outlined,
-                              onTap: () async {
-                                HapticService.selection();
-                                if (context.mounted) {
-                                  _showRecommendationDetails(context, lastResult);
-                                }
-                              },
-                              child: _buildRecommendations(lastResult),
-                            ),
-                            const SizedBox(height: Spacing.xl),
-                            _buildToolGrid(context),
-                            const SizedBox(height: 120),
-                          ]),
+                        context,
+                        title: s.networkDetails,
+                        icon: Icons.signal_cellular_alt_rounded,
+                        onTap: () async {
+                          HapticService.selection();
+                          if (context.mounted) {
+                            _showNetworkDetails(context, info);
+                          }
+                        },
+                        child: Column(
+                          children: [
+                            _ScanRow(label: AppState.instance.strings.connection, value: state.connectionLabel),
+                            if (info.networkGeneration != null)
+                              _ScanRow(label: AppState.instance.strings.radio, value: info.networkGeneration!),
+                            _ScanRow(label: AppState.instance.strings.carrier, value: info.carrierName ?? 'N/A'),
+                            if (state.connectionLabel.contains('Wi‑Fi')) ...[
+                              _ScanRow(label: s.ssid, value: info.wifiSsid ?? s.unknown),
+                              _ScanRow(label: s.signalStrength, value: '${info.rssi ?? '—'} dBm'),
+                            ],
+                          ],
                         ),
                       ),
-                    ],
+                      const SizedBox(height: Spacing.xl),
+                      _buildInfoCard(
+                        context,
+                        title: s.recommendations,
+                        icon: Icons.tips_and_updates_outlined,
+                        onTap: () async {
+                          HapticService.selection();
+                          if (context.mounted) {
+                            _showRecommendationDetails(context, lastResult);
+                          }
+                        },
+                        child: _buildRecommendations(lastResult),
+                      ),
+                      const SizedBox(height: Spacing.xl),
+                      _buildToolGrid(context),
+                      const SizedBox(height: 120),
+                    ]),
                   ),
                 ),
+              ],
+            ),
+          ),
           floatingActionButton: !state.isOnline
               ? null
               : Padding(
@@ -207,13 +186,17 @@ class _ScanScreenState extends State<ScanScreen> {
                     onPressed: _isScanning ? null : _startScan,
                     backgroundColor: context.netChui.accent,
                     foregroundColor: Colors.white,
+                    elevation: 8,
                     icon: _isScanning
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.radar_rounded),
-                    label: Text(_isScanning ? s.scanning : s.scan),
+                            child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
+                        : const Icon(Icons.radar_rounded, size: 24),
+                    label: Text(
+                      _isScanning ? s.scanning.toUpperCase() : s.scan.toUpperCase(),
+                      style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1.2, fontSize: 13),
+                    ),
                   ),
                 ),
         );
@@ -339,89 +322,37 @@ class _ScanScreenState extends State<ScanScreen> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 1.1,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          childAspectRatio: 1.2,
           children: [
             _ToolCard(
               title: AppState.instance.strings.liveMonitor,
+              subtitle: 'Real-time stats',
               icon: Icons.monitor_heart_rounded,
               color: AppColors.blue,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => const LiveMonitorScreen(),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
-                  ),
-                );
-              },
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LiveMonitorScreen())),
             ),
             _ToolCard(
               title: AppState.instance.strings.lanScanner,
+              subtitle: 'Find devices',
               icon: Icons.devices_other_rounded,
               color: AppColors.purple,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => const LanScannerScreen(),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
-                  ),
-                );
-              },
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LanScannerScreen())),
             ),
             _ToolCard(
               title: AppState.instance.strings.diagnostics,
+              subtitle: 'Fix issues',
               icon: Icons.troubleshoot_rounded,
               color: AppColors.green,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => const DiagnosticsScreen(),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
-                  ),
-                );
-              },
-            ),
-            _ToolCard(
-              title: AppState.instance.strings.speedHistory,
-              icon: Icons.history_rounded,
-              color: AppColors.orange,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => const HistoryScreen(),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
-                  ),
-                );
-              },
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DiagnosticsScreen())),
             ),
             _ToolCard(
               title: AppState.instance.strings.dnsSpeedTest,
-              icon: Icons.speed_rounded,
-              color: context.netChui.accent,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) => const DnsSpeedTestScreen(),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
-                  ),
-                );
-              },
+              subtitle: 'Fastest DNS',
+              icon: Icons.dns_rounded,
+              color: colors.accent,
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DnsSpeedTestScreen())),
             ),
           ],
         ),
@@ -449,18 +380,19 @@ class _ScanScreenState extends State<ScanScreen> {
     final ping = result.pingMs ?? 1000;
 
     final items = <_RecItem>[];
+    final colors = context.netChui;
 
     if (dl > 50 && ping < 30) {
-      items.add(_RecItem(Icons.movie_filter_rounded, s.rec4k, s.statusExcellent, s.rec4kDesc));
-      items.add(_RecItem(Icons.videogame_asset_rounded, s.recGaming, s.statusExcellent, s.recGamingDesc));
+      items.add(_RecItem(Icons.movie_filter_rounded, s.rec4k, s.statusExcellent, s.rec4kDesc, colors.success));
+      items.add(_RecItem(Icons.videogame_asset_rounded, s.recGaming, s.statusExcellent, s.recGamingDesc, colors.success));
     } else if (dl > 15 && ping < 60) {
-      items.add(_RecItem(Icons.hd_rounded, s.recHd, s.statusGood, s.recHdDesc));
-      items.add(_RecItem(Icons.video_call_rounded, s.recVideoConf, s.statusGood, s.recVideoConfDesc));
+      items.add(_RecItem(Icons.hd_rounded, s.recHd, s.statusGood, s.recHdDesc, colors.info));
+      items.add(_RecItem(Icons.video_call_rounded, s.recVideoConf, s.statusGood, s.recVideoConfDesc, colors.info));
     } else if (dl > 5) {
-      items.add(_RecItem(Icons.language_rounded, s.recBrowsing, s.statusFair, s.recBrowsingDesc));
-      items.add(_RecItem(Icons.chat_bubble_outline_rounded, s.recSocial, s.statusFair, s.recSocialDesc));
+      items.add(_RecItem(Icons.language_rounded, s.recBrowsing, s.statusFair, s.recBrowsingDesc, colors.warning));
+      items.add(_RecItem(Icons.chat_bubble_outline_rounded, s.recSocial, s.statusFair, s.recSocialDesc, colors.warning));
     } else {
-      items.add(_RecItem(Icons.warning_amber_rounded, s.recBasic, s.statusPoor, s.recBasicDesc));
+      items.add(_RecItem(Icons.warning_amber_rounded, s.recBasic, s.statusPoor, s.recBasicDesc, colors.accent));
     }
 
     return Column(
@@ -471,12 +403,12 @@ class _ScanScreenState extends State<ScanScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: context.netChui.accent.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(12),
+                        color: item.color.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Icon(item.icon, size: 20, color: context.netChui.accent),
+                      child: Icon(item.icon, size: 22, color: item.color),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -484,15 +416,43 @@ class _ScanScreenState extends State<ScanScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(item.label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                              Text(item.status,
-                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: context.netChui.accent, letterSpacing: 0.5)),
+                              Expanded(
+                                child: Text(
+                                  item.label, 
+                                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, letterSpacing: -0.3),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: item.color.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  item.status.toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 9, 
+                                    fontWeight: FontWeight.w900, 
+                                    color: item.color, 
+                                    letterSpacing: 0.8
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Text(item.description, style: TextStyle(color: context.netChui.muted, fontSize: 12)),
+                          Text(
+                            item.description, 
+                            style: TextStyle(
+                              color: context.netChui.muted, 
+                              fontSize: 12,
+                              height: 1.4,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -509,7 +469,8 @@ class _RecItem {
   final String label;
   final String status;
   final String description;
-  const _RecItem(this.icon, this.label, this.status, this.description);
+  final Color color;
+  const _RecItem(this.icon, this.label, this.status, this.description, this.color);
 }
 
 class _ScanRow extends StatelessWidget {
@@ -521,22 +482,27 @@ class _ScanRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.netChui;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: colors.muted,
-              fontWeight: FontWeight.w500,
-              fontSize: 13,
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: colors.muted,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                letterSpacing: 0.2,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
+          const SizedBox(width: 12),
           Text(
             value,
             style: TextStyle(
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
               fontFamily: 'JetBrainsMono',
               color: colors.text,
               fontSize: 14,
@@ -549,33 +515,50 @@ class _ScanRow extends StatelessWidget {
 }
 
 class _ToolCard extends StatelessWidget {
-  const _ToolCard({required this.title, required this.icon, required this.onTap, required this.color});
+  const _ToolCard({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onTap,
+    required this.color,
+  });
   final String title;
+  final String subtitle;
   final IconData icon;
   final VoidCallback onTap;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.netChui;
     return GlassCard(
       onTap: onTap,
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.all(18),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
             ),
             child: Icon(icon, color: color, size: 24),
           ),
-          const SizedBox(height: 12),
+          const Spacer(),
           Text(
             title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: -0.5),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: colors.muted,
+            ),
           ),
         ],
       ),
@@ -602,10 +585,11 @@ class _RecommendationDetailModal extends StatelessWidget {
           else ...[
             Text(s.latestSpeedTest, style: TextStyle(color: context.netChui.muted, fontWeight: FontWeight.w600, fontSize: 13)),
             const SizedBox(height: 12),
-            Row(
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
               children: [
                 _MiniStat(label: s.download.toUpperCase(), value: '${result!.downloadMbps?.toStringAsFixed(1)} Mbps'),
-                const SizedBox(width: 16),
                 _MiniStat(label: s.ping.toUpperCase(), value: '${result!.pingMs?.toInt()} ms'),
               ],
             ),
@@ -615,18 +599,21 @@ class _RecommendationDetailModal extends StatelessWidget {
               description: result!.downloadMbps! > 25 ? s.rec4kDesc : s.recHdDesc,
               status: result!.downloadMbps! > 25 ? s.excellent : s.statusGood,
               icon: Icons.movie_filter_rounded,
+              color: result!.downloadMbps! > 25 ? context.netChui.success : context.netChui.info,
             ),
             _RecDetailItem(
               title: s.gaming,
               description: result!.pingMs! < 50 ? s.recGamingDesc : 'Higher latency might affect fast-paced online gaming.',
               status: result!.pingMs! < 50 ? s.optimal : s.fair,
               icon: Icons.videogame_asset_rounded,
+              color: result!.pingMs! < 50 ? context.netChui.success : context.netChui.warning,
             ),
             _RecDetailItem(
               title: s.workAndProductivity,
               description: s.recVideoConfDesc,
               status: s.stable,
               icon: Icons.work_outline_rounded,
+              color: context.netChui.info,
             ),
           ],
         ],
@@ -643,16 +630,25 @@ class _MiniStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: context.netChui.card,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: context.netChui.border),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text('$label: ', style: TextStyle(fontSize: 12, color: context.netChui.text.withValues(alpha: 0.65))),
-          Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, fontFamily: 'JetBrainsMono')),
+          Text(
+            label, 
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: context.netChui.muted, letterSpacing: 1.0),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value, 
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, fontFamily: 'JetBrainsMono')
+          ),
         ],
       ),
     );
@@ -660,26 +656,28 @@ class _MiniStat extends StatelessWidget {
 }
 
 class _RecDetailItem extends StatelessWidget {
-  const _RecDetailItem({required this.title, required this.description, required this.status, required this.icon});
+  const _RecDetailItem({required this.title, required this.description, required this.status, required this.icon, required this.color});
   final String title;
   final String description;
   final String status;
   final IconData icon;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 24),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: context.netChui.accent.withValues(alpha: 0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
+              border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
             ),
-            child: Icon(icon, color: context.netChui.accent, size: 20),
+            child: Icon(icon, color: color, size: 22),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -689,12 +687,29 @@ class _RecDetailItem extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-                    Text(status, style: TextStyle(color: context.netChui.accent, fontWeight: FontWeight.w800, fontSize: 11)),
+                    Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, letterSpacing: -0.4)),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        status.toUpperCase(), 
+                        style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 9, letterSpacing: 0.5)
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(description, style: TextStyle(color: context.netChui.text.withValues(alpha: 0.65), fontSize: 13)),
+                const SizedBox(height: 6),
+                Text(
+                  description, 
+                  style: TextStyle(
+                    color: context.netChui.text.withValues(alpha: 0.7), 
+                    fontSize: 13,
+                    height: 1.4,
+                  )
+                ),
               ],
             ),
           ),

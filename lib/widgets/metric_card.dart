@@ -26,30 +26,40 @@ class MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.netChui;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Semantics(
       label: semanticsLabel ?? '$label $value $unit',
       child: AnimatedScale(
-        scale: isActive ? 1.02 : 1.0,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
+        scale: isActive ? 1.05 : 1.0,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.elasticOut,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
           decoration: BoxDecoration(
-            color: isActive ? colors.surface : colors.card.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(24),
+            color: isActive 
+                ? (isDark ? accent.withValues(alpha: 0.15) : accent.withValues(alpha: 0.08))
+                : colors.card.withValues(alpha: isDark ? 0.4 : 0.6),
+            borderRadius: BorderRadius.circular(28),
             border: Border.all(
               color: isActive
-                  ? accent.withValues(alpha: 0.8)
-                  : colors.border.withValues(alpha: 0.15),
+                  ? accent.withValues(alpha: 0.5)
+                  : colors.border.withValues(alpha: isDark ? 0.2 : 0.1),
               width: isActive ? 2.0 : 1.0,
             ),
             boxShadow: [
               if (isActive)
                 BoxShadow(
-                  color: accent.withValues(alpha: 0.2),
-                  blurRadius: 20,
+                  color: accent.withValues(alpha: 0.25),
+                  blurRadius: 25,
+                  spreadRadius: -5,
+                  offset: const Offset(0, 8),
+                )
+              else
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                  blurRadius: 15,
                   offset: const Offset(0, 4),
                 ),
             ],
@@ -58,57 +68,60 @@ class MetricCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: (isActive ? accent : colors.text).withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  color: isActive ? accent : colors.text.withValues(alpha: 0.7),
-                  size: 18,
+              color: (isActive ? accent : colors.text).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: (isActive ? accent : colors.text).withValues(alpha: 0.15),
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              icon,
+              color: isActive ? accent : colors.text.withValues(alpha: 0.6),
+              size: 22,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: colors.muted,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  color: colors.text,
+                  letterSpacing: -1.5,
+                  fontFamily: 'JetBrainsMono',
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(width: 2),
               Text(
-                label.toUpperCase(),
+                unit,
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
                   color: colors.muted,
-                  letterSpacing: 1.2,
                 ),
               ),
-              const SizedBox(height: 6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: colors.text,
-                      letterSpacing: -0.5,
-                      fontFamily: 'JetBrainsMono',
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    unit,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: colors.muted.withValues(alpha: 0.8),
-                      fontFamily: 'JetBrainsMono',
-                    ),
-                  ),
-                ],
-              ),
+            ],
+          ),
               if (subtitle != null) ...[
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 Text(
                   subtitle!,
                   textAlign: TextAlign.center,
@@ -117,7 +130,7 @@ class MetricCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: colors.muted,
+                    color: colors.muted.withValues(alpha: 0.8),
                   ),
                 ),
               ],

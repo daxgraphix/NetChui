@@ -1,0 +1,17 @@
+# Generated files
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Android signing (keep secret!)
+/android/key.properties
+/android/upload-keystore.jks
+/android/app/upload-keystore.jks
+
+# Miscellaneous
+*.iml
+.DS_Store

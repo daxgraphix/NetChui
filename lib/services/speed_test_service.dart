@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:net_chui/models/ping_stats.dart';
 import 'package:net_chui/models/speed_test_config.dart';
@@ -83,6 +84,11 @@ class SpeedTestService {
         isCancelled: isCancelled,
       );
       if (isCancelled()) return result;
+      
+      if (stats.avgMs >= 999) {
+        throw const SpeedTestException('Ping measurement failed. Check your network connection.');
+      }
+
       result = result.copyWith(
         pingMs: stats.avgMs,
         pingMinMs: stats.minMs,
@@ -266,35 +272,41 @@ class SpeedTestService {
       }
     }();
 
+    var successCount = 0;
     final streamFutures = List.generate(parallelStreams, (index) async {
       try {
         final url = fastUrls.isNotEmpty 
             ? fastUrls[index] 
             : config.server.downloadUrlBuilder(bytesPerStream);
         
-        // Fast.com URLs are typically very large files or streams, 
-        // we might need to limit the amount we read to stay within test size.
         final response = await _client.send(http.Request('GET', Uri.parse(url))).timeout(const Duration(seconds: 30));
+        
+        if (response.statusCode >= 400) return;
+
         await for (final chunk in response.stream) {
           if (isCancelled()) break;
           totalReceived += chunk.length;
+          successCount++; // Mark that we at least got some data
           final elapsed = stopwatch.elapsedMicroseconds / 1e6;
           if (elapsed > 0) {
             onProgress(_bytesToMbps(totalReceived, elapsed));
           }
           
-          // If we've reached the target size for this stream, stop
           if (!fastUrls.isNotEmpty && totalReceived >= config.downloadBytes) break;
-          // For Fast.com, we let it run for a bit or until a certain byte count
           if (fastUrls.isNotEmpty && totalReceived >= (config.downloadBytes * 2)) break;
         }
-      } on Object {
-        // Stream failed
+      } on Object catch (e) {
+        debugPrint('Download stream $index failed: $e');
       }
     });
 
     await Future.wait([...streamFutures, latencyFuture]);
     stopwatch.stop();
+
+    if (totalReceived == 0 && successCount == 0 && !isCancelled()) {
+      throw const SpeedTestException('Download failed. Please check your internet connection.');
+    }
+
     return _PhaseResult(
       speedMbps: _bytesToMbps(totalReceived, stopwatch.elapsedMicroseconds / 1e6),
       loadedLatencyMs: loadedLatency,
@@ -311,6 +323,7 @@ class SpeedTestService {
     final bytesPerStream = uploadBytes ~/ parallelStreams;
     final stopwatch = Stopwatch()..start();
     var totalSent = 0;
+    var successCount = 0;
     double? loadedLatency;
 
     final latencyFuture = () async {
@@ -335,10 +348,11 @@ class SpeedTestService {
         
         var streamSent = 0;
         while (streamSent < bytesPerStream && !isCancelled()) {
-          final size = min(128 * 1024, bytesPerStream - streamSent);
+          final size = min(128 * 1024, (bytesPerStream - streamSent).toInt());
           request.sink.add(List.filled(size, 0));
           streamSent += size;
           totalSent += size;
+          successCount++;
           final elapsed = stopwatch.elapsedMicroseconds / 1e6;
           if (elapsed > 0) {
             onProgress(_bytesToMbps(totalSent, elapsed));
@@ -346,14 +360,20 @@ class SpeedTestService {
           await Future.delayed(Duration.zero);
         }
         await request.sink.close();
-        await (await responseFuture).stream.drain();
-      } on Object {
-        // Stream failed
+        final resp = await responseFuture;
+        await resp.stream.drain();
+      } on Object catch (e) {
+        debugPrint('Upload stream $index failed: $e');
       }
     });
 
     await Future.wait([...streamFutures, latencyFuture]);
     stopwatch.stop();
+
+    if (totalSent == 0 && successCount == 0 && !isCancelled()) {
+      throw const SpeedTestException('Upload failed. Please check your internet connection.');
+    }
+
     return _PhaseResult(
       speedMbps: _bytesToMbps(totalSent, stopwatch.elapsedMicroseconds / 1e6),
       loadedLatencyMs: loadedLatency,

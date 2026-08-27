@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 class ConnectivityService {
@@ -12,11 +13,20 @@ class ConnectivityService {
       final results = await _connectivity
           .checkConnectivity()
           .timeout(_timeout);
-      return !results.contains(ConnectivityResult.none);
+      
+      if (results.contains(ConnectivityResult.none)) return false;
+      
+      // Perform a quick lookup to verify actual internet access if not "none"
+      try {
+        final result = await InternetAddress.lookup('google.com').timeout(const Duration(seconds: 2));
+        return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+      } catch (_) {
+        return false;
+      }
     } on TimeoutException {
-      return true;
+      return false;
     } on Object {
-      return true;
+      return false;
     }
   }
 

@@ -3,7 +3,7 @@ description: "NetChui — A beautiful Flutter internet speed test app (download,
 
 publish_to: 'none'
 
-version: 1.0.1+2
+version: 1.0.3+3
 
 environment:
   sdk: ^3.10.4
@@ -63,4 +63,4 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
-    - assets/tiger.jpg
+    - assets/

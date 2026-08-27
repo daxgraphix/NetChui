@@ -156,6 +156,14 @@ class StorageService {
     });
   }
 
+  Future<void> pruneLogs({int daysToKeep = 30}) async {
+    if (_isar == null) return;
+    final cutoff = DateTime.now().subtract(Duration(days: daysToKeep));
+    await _isar!.writeTxn(() async {
+      await _isar!.networkLogs.filter().timestampLessThan(cutoff).deleteAll();
+    });
+  }
+
   Future<void> _plainWrite(String key, String value) async {
     if (_prefs == null) return;
     try {

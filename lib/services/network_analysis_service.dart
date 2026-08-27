@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:wifi_scan/wifi_scan.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:net_chui/services/haptic_service.dart';
+import 'package:net_chui/services/vendor_service.dart';
 
 class LanDevice {
   final String ip;
@@ -164,25 +166,8 @@ class NetworkAnalysisService {
               // Basic OUI/Vendor inference for common hardware
               if (targetIp.endsWith('.1')) {
                 vendor = 'Gateway/Router';
-              } else if (host != null) {
-                final h = host.toLowerCase();
-                if (h.contains('apple')) {
-                  vendor = 'Apple Device';
-                } else if (h.contains('samsung')) {
-                  vendor = 'Samsung Device';
-                } else if (h.contains('google')) {
-                  vendor = 'Google/Android Device';
-                } else if (h.contains('amazon')) {
-                  vendor = 'Amazon Echo/Kindle';
-                } else if (h.contains('roku')) {
-                  vendor = 'Roku';
-                } else if (h.contains('sonos')) {
-                  vendor = 'Sonos';
-                } else if (h.contains('xbox')) {
-                  vendor = 'Microsoft Xbox';
-                } else if (h.contains('playstation')) {
-                  vendor = 'Sony PlayStation';
-                }
+              } else {
+                vendor = VendorService.inferVendorFromHost(host);
               }
 
               return LanDevice(ip: targetIp, name: host, openPorts: openPorts, vendor: vendor);
@@ -470,33 +455,58 @@ class NetworkAnalysisService {
 
   Future<List<Map<String, String>>> dnsLookup(String host) async {
     try {
-      final addresses = await InternetAddress.lookup(host);
+      if (host.isEmpty) return [{'error': 'Hostname cannot be empty'}];
+      final addresses = await InternetAddress.lookup(host).timeout(const Duration(seconds: 5));
+      if (addresses.isEmpty) return [{'error': 'No addresses found for $host'}];
       return addresses.map((addr) => {
         'type': addr.type == InternetAddressType.IPv4 ? 'A' : 'AAAA',
         'address': addr.address,
       }).toList();
-    } catch (e) { return []; }
+    } on SocketException catch (e) {
+      debugPrint('DNS Lookup failed for $host: ${e.message}');
+      return [{'error': 'DNS lookup failed: ${e.message}'}];
+    } on TimeoutException {
+      return [{'error': 'DNS lookup timed out'}];
+    } catch (e) {
+      return [{'error': 'Unexpected error: $e'}];
+    }
   }
 
   Future<Map<String, dynamic>> getIpDetails(String ip) async {
     try {
       final url = ip.isEmpty ? 'https://ip-api.com/json/' : 'https://ip-api.com/json/$ip';
       final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 5));
-      return response.statusCode == 200 ? jsonDecode(response.body) : {'status': 'fail'};
-    } catch (e) { return {'status': 'fail'}; }
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'status': 'fail',
+          'message': 'Server returned status code ${response.statusCode}'
+        };
+      }
+    } on TimeoutException {
+      return {'status': 'fail', 'message': 'Request timed out. Check your connection.'};
+    } catch (e) {
+      return {'status': 'fail', 'message': 'Connection error: $e'};
+    }
   }
 
   Future<String> whoisLookup(String host) async {
     try {
-      // Basic WHOIS usually requires a socket to a WHOIS server (e.g., whois.verisign-grs.com on port 43)
-      // For mobile apps, it's often more reliable to use a web API or a specific WHOIS library
-      // Here we'll simulate or use a public API if available, or just perform a rich DNS dig
-      final response = await http.get(Uri.parse('https://rdap.org/domain/$host')).timeout(const Duration(seconds: 5));
+      if (host.isEmpty) return 'Error: Hostname cannot be empty';
+      
+      final response = await http.get(Uri.parse('https://rdap.org/domain/$host')).timeout(const Duration(seconds: 7));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return const JsonEncoder.withIndent('  ').convert(data);
+      } else if (response.statusCode == 404) {
+        return 'WHOIS data not found for $host (404)';
       }
-      return 'WHOIS data not available via RDAP for $host';
+      return 'WHOIS data not available via RDAP for $host (Status: ${response.statusCode})';
+    } on TimeoutException {
+      return 'WHOIS lookup timed out. The server may be busy or unreachable.';
+    } on SocketException catch (e) {
+      return 'Network error: ${e.message}. Please check your connection.';
     } catch (e) {
       return 'WHOIS Lookup Error: $e';
     }
@@ -505,13 +515,16 @@ class NetworkAnalysisService {
   Future<PingDataWrapper> testConnection(String host, {int port = 53}) async {
     final sw = Stopwatch()..start();
     try {
-      final s = await Socket.connect(host, port, timeout: const Duration(seconds: 2));
+      final s = await Socket.connect(host, port, timeout: const Duration(seconds: 3));
       sw.stop();
       await s.close();
       return PingDataWrapper(ip: host, time: sw.elapsed);
-    } catch (_) { 
-       // Fallback without ping if needed, but for now just return error
-       return PingDataWrapper(error: 'Connection failed');
+    } on SocketException catch (e) {
+      return PingDataWrapper(error: 'Connection failed: ${e.message}');
+    } on TimeoutException {
+      return PingDataWrapper(error: 'Connection timed out after 3s');
+    } catch (e) {
+      return PingDataWrapper(error: 'Unexpected error: $e');
     }
   }
 

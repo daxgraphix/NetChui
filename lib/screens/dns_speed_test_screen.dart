@@ -229,6 +229,8 @@ class _DnsCard extends StatelessWidget {
     final bool isError = latency != null && latency! < 0;
     final bool hasData = latency != null && !isError;
     final Color color = hasData ? _getLatencyColor(latency!) : context.netChui.subtle;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
 
     return GlassCard(
       padding: EdgeInsets.zero,
@@ -250,14 +252,15 @@ class _DnsCard extends StatelessWidget {
                 ),
               ),
             Padding(
-              padding: const EdgeInsets.all(Spacing.lg),
+              padding: EdgeInsets.all(isSmallScreen ? Spacing.md : Spacing.lg),
               child: Row(
                 children: [
                   Container(
-                    width: 48, height: 48,
+                    width: isSmallScreen ? 40 : 48, 
+                    height: isSmallScreen ? 40 : 48,
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(isSmallScreen ? 12 : 16),
                     ),
                     child: Center(
                       child: Text(
@@ -265,23 +268,50 @@ class _DnsCard extends StatelessWidget {
                         style: TextStyle(
                           color: hasData ? color : context.netChui.muted,
                           fontWeight: FontWeight.w900,
-                          fontSize: 20,
+                          fontSize: isSmallScreen ? 16 : 20,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: Spacing.lg),
+                  SizedBox(width: isSmallScreen ? Spacing.md : Spacing.lg),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(server.provider, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, letterSpacing: -0.3)),
+                        Text(
+                          server.provider, 
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800, 
+                            fontSize: isSmallScreen ? 14 : 16, 
+                            letterSpacing: -0.3
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         const SizedBox(height: 2),
-                        Text(server.ip, style: TextStyle(color: context.netChui.muted, fontSize: 13, fontFamily: 'JetBrainsMono', fontWeight: FontWeight.w600)),
-                        Text(server.location, style: TextStyle(color: context.netChui.muted.withValues(alpha: 0.6), fontSize: 11, fontWeight: FontWeight.w500)),
+                        Text(
+                          server.ip, 
+                          style: TextStyle(
+                            color: context.netChui.muted, 
+                            fontSize: isSmallScreen ? 11 : 13, 
+                            fontFamily: 'JetBrainsMono', 
+                            fontWeight: FontWeight.w600
+                          )
+                        ),
+                        Text(
+                          server.location, 
+                          style: TextStyle(
+                            color: context.netChui.muted.withValues(alpha: 0.6), 
+                            fontSize: isSmallScreen ? 9 : 11, 
+                            fontWeight: FontWeight.w500
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
                   if (isLoading)
                     SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: context.netChui.accent))
                   else if (isError)
@@ -292,11 +322,17 @@ class _DnsCard extends StatelessWidget {
                       children: [
                         Text(
                           '${latency!.toInt()}ms',
-                          style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 18, fontFamily: 'JetBrainsMono'),
+                          style: TextStyle(
+                            color: color, 
+                            fontWeight: FontWeight.w900, 
+                            fontSize: isSmallScreen ? 15 : 18, 
+                            fontFamily: 'JetBrainsMono'
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Container(
-                          width: 64, height: 6,
+                          width: isSmallScreen ? 48 : 64, 
+                          height: 6,
                           decoration: BoxDecoration(
                             color: context.netChui.border,
                             borderRadius: BorderRadius.circular(3),
@@ -318,12 +354,12 @@ class _DnsCard extends StatelessWidget {
                     IconButton(
                       onPressed: onTest,
                       icon: Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: EdgeInsets.all(isSmallScreen ? 6 : 8),
                         decoration: BoxDecoration(
                           color: context.netChui.accent.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.play_arrow_rounded, color: context.netChui.accent, size: 20),
+                        child: Icon(Icons.play_arrow_rounded, color: context.netChui.accent, size: isSmallScreen ? 18 : 20),
                       ),
                     ),
                 ],

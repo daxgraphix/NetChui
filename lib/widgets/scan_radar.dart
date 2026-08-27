@@ -56,19 +56,25 @@ class _ScanRadarState extends State<ScanRadar> with SingleTickerProviderStateMix
         alignment: Alignment.center,
         children: [
           // Background ambient glow
-          Container(
-            width: 220,
-            height: 220,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: context.netChui.accent.withValues(alpha: widget.isScanning ? 0.08 : 0.03),
-                  blurRadius: 60,
-                  spreadRadius: 10,
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              final glowScale = widget.isScanning ? 1.0 + (math.sin(_controller.value * math.pi * 2) * 0.1) : 1.0;
+              return Container(
+                width: 220 * glowScale,
+                height: 220 * glowScale,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: context.netChui.accent.withValues(alpha: widget.isScanning ? 0.12 : 0.05),
+                      blurRadius: 70,
+                      spreadRadius: 15,
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
           
           // Dotted circles (static)
@@ -80,7 +86,7 @@ class _ScanRadarState extends State<ScanRadar> with SingleTickerProviderStateMix
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: context.netChui.text.withValues(alpha: 0.05),
+                  color: context.netChui.text.withValues(alpha: 0.08),
                   width: 1,
                 ),
               ),
@@ -98,13 +104,13 @@ class _ScanRadarState extends State<ScanRadar> with SingleTickerProviderStateMix
                 final opacity = (1 - progress).clamp(0.0, 1.0);
                 
                 return Container(
-                  width: 140 + (160 * progress),
-                  height: 140 + (160 * progress),
+                  width: 140 + (180 * progress),
+                  height: 140 + (180 * progress),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: context.netChui.accent.withValues(alpha: opacity * 0.2),
-                      width: 1.5,
+                      color: context.netChui.accent.withValues(alpha: opacity * 0.25),
+                      width: 2.0,
                     ),
                   ),
                 );
@@ -117,18 +123,18 @@ class _ScanRadarState extends State<ScanRadar> with SingleTickerProviderStateMix
             RotationTransition(
               turns: _controller,
               child: Container(
-                width: 280,
-                height: 280,
+                width: 300,
+                height: 300,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: SweepGradient(
                     colors: [
                       Colors.transparent,
-                      context.netChui.accent.withValues(alpha: 0.02),
-                      context.netChui.accent.withValues(alpha: 0.2),
+                      context.netChui.accent.withValues(alpha: 0.01),
+                      context.netChui.accent.withValues(alpha: 0.25),
                       Colors.transparent,
                     ],
-                    stops: const [0.0, 0.4, 0.5, 0.6],
+                    stops: const [0.0, 0.35, 0.5, 0.65],
                   ),
                 ),
               ),
@@ -136,29 +142,32 @@ class _ScanRadarState extends State<ScanRadar> with SingleTickerProviderStateMix
 
           // Center core
           Container(
-            width: 100,
-            height: 100,
+            width: 110,
+            height: 110,
             decoration: BoxDecoration(
               color: context.netChui.surface,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 5),
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 25,
+                  offset: const Offset(0, 8),
                 ),
                 BoxShadow(
-                  color: context.netChui.accent.withValues(alpha: 0.1),
-                  blurRadius: 10,
+                  color: context.netChui.accent.withValues(alpha: 0.15),
+                  blurRadius: 15,
                 ),
               ],
               border: Border.all(
-                color: context.netChui.border,
-                width: 1,
+                color: context.netChui.border.withValues(alpha: 0.2),
+                width: 1.5,
               ),
             ),
             child: Center(
-              child: widget.centerIcon,
+              child: Hero(
+                tag: 'radar_icon',
+                child: widget.centerIcon,
+              ),
             ),
           ),
           

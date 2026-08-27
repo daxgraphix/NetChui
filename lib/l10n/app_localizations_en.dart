@@ -362,6 +362,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get networkTools => 'Network Tools';
 
   @override
+  String get dataManagement => 'Data Management';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get support => 'Support';
+
+  @override
   String get theme => 'Theme';
 
   @override
@@ -396,6 +405,357 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacy => 'Privacy';
+
+  @override
+  String get faq => 'FAQ';
+
+  @override
+  String get faqTitle => 'Frequently Asked Questions';
+
+  @override
+  String get faqSearch => 'Search questions...';
+
+  @override
+  String get faqCatGeneral => 'General';
+
+  @override
+  String get faqCatTechnical => 'Technical';
+
+  @override
+  String get faqCatPrivacy => 'Security & Privacy';
+
+  @override
+  String get appGuides => 'App Guides';
+
+  @override
+  String get guidesTitle => 'App Guides & Tutorials';
+
+  @override
+  String get guidesSearch => 'Search guides...';
+
+  @override
+  String get guidesCatBasics => 'The Basics';
+
+  @override
+  String get guidesCatOptimization => 'Optimization';
+
+  @override
+  String get guidesCatAdvanced => 'Advanced Tech';
+
+  @override
+  String get faqQ1 => 'How accurate are the speed tests?';
+
+  @override
+  String get faqA1 =>
+      'NetChui uses high-performance edge servers (Cloudflare, Tele2, etc.) to ensure low latency and high accuracy. However, results can vary based on network congestion and your device\'s hardware.';
+
+  @override
+  String get faqQ2 => 'What is Jitter?';
+
+  @override
+  String get faqA2 =>
+      'Jitter is the variation in time delay between data packets sent over a network. Lower jitter means a more stable connection, which is crucial for gaming and video calls.';
+
+  @override
+  String get faqQ3 => 'Does this app use a lot of data?';
+
+  @override
+  String get faqA3 =>
+      'Standard tests use about 20-50MB. Quick tests use less, while \'Accurate\' tests can use over 100MB to fully saturate your connection.';
+
+  @override
+  String get faqQ4 => 'Why is my speed lower than my plan?';
+
+  @override
+  String get faqA4 =>
+      'Speeds advertised by ISPs are \'up to\' values. Factors like Wi-Fi interference, distance from the router, number of connected devices, and background app usage can lower results.';
+
+  @override
+  String get faqQ5 => '2.4GHz vs 5GHz Wi-Fi?';
+
+  @override
+  String get faqA5 =>
+      '2.4GHz has better range but lower speeds. 5GHz (and 6GHz) offers much higher speeds but doesn\'t travel through walls as effectively. Use 5GHz when close to the router.';
+
+  @override
+  String get faqQ6 => 'Why is Upload usually slower?';
+
+  @override
+  String get faqA6 =>
+      'Most residential internet plans are \'asymmetric\', meaning they prioritize download bandwidth for streaming and browsing over upload bandwidth.';
+
+  @override
+  String get faqQ7 => 'How can I lower my Ping?';
+
+  @override
+  String get faqA7 =>
+      'To lower ping, use a wired Ethernet connection if possible, move closer to your router, close background downloads, and ensure you\'re testing against a server physically close to you.';
+
+  @override
+  String get faqQ8 => 'What is a \'Good\' speed?';
+
+  @override
+  String get faqA8 =>
+      'For basic browsing, 5-10 Mbps is enough. For 4K streaming, you need 25+ Mbps. For a smooth multi-user household, 100+ Mbps is recommended.';
+
+  @override
+  String get faqQ9 => 'Does NetChui store my location?';
+
+  @override
+  String get faqA9 =>
+      'No. NetChui uses your IP address to estimate your ISP and general region for the test, but we do not track or store your precise GPS location.';
+
+  @override
+  String get faqQ10 => 'What is \'Loaded\' Latency?';
+
+  @override
+  String get faqA10 =>
+      'Loaded latency measures your ping while your connection is being used (during download or upload). If this is much higher than your normal ping, you may experience lag while others in your house are streaming or downloading.';
+
+  @override
+  String get faqQ11 => 'Can I use NetChui for LAN speeds?';
+
+  @override
+  String get faqA11 =>
+      'NetChui is primarily for internet speed. To test LAN speeds between devices, use the LAN Scanner tool to identify devices, but actual transfer speeds depend on your internal hardware capabilities.';
+
+  @override
+  String get faqQ12 => 'How do I export my data?';
+
+  @override
+  String get faqA12 =>
+      'Go to Settings > Activity Logs > Export All Data. You can save your history and diagnostic logs as a JSON file or generate a PDF report from the Report screen.';
+
+  @override
+  String get faqQ13 => 'Will a VPN affect my results?';
+
+  @override
+  String get faqA13 =>
+      'Yes. A VPN encrypts your traffic and routes it through another server, which usually increases latency (ping) and may reduce overall download/upload speeds.';
+
+  @override
+  String get faqQ14 => 'Mbps vs MB/s: What\'s the difference?';
+
+  @override
+  String get faqA14 =>
+      'Mbps stands for Megabits per second (used for internet speeds). MB/s stands for Megabytes per second (used for file sizes). 8 Mbps = 1 MB/s.';
+
+  @override
+  String get faqQ15 => 'How often should I run a test?';
+
+  @override
+  String get faqA15 =>
+      'We recommend testing at different times of the day (morning, afternoon, evening) to see how peak usage in your area affects your performance.';
+
+  @override
+  String get faqQ16 => 'Wi-Fi vs. Internet Speed?';
+
+  @override
+  String get faqA16 =>
+      'Your Wi-Fi speed is the connection between your device and router. Internet speed is the connection between your router and the world. NetChui measures the end-to-end internet speed from your device.';
+
+  @override
+  String get faqQ17 => 'Can weather affect speed?';
+
+  @override
+  String get faqA17 =>
+      'Yes, especially for satellite and fixed-wireless connections. Heavy rain or snow (rain fade) can degrade signal quality and reduce speeds or increase latency.';
+
+  @override
+  String get faqQ18 => 'What is Packet Loss?';
+
+  @override
+  String get faqA18 =>
+      'Packet loss occurs when data units fail to reach their destination. It can cause \'stuttering\' in video calls or gaming. NetChui identifies stability issues in the Live Monitor.';
+
+  @override
+  String get faqQ19 => 'Why use DNS Speed Test?';
+
+  @override
+  String get faqA19 =>
+      'DNS is like a phonebook for the internet. Faster DNS means your browser finds websites quicker, making the internet feel much more responsive.';
+
+  @override
+  String get faqQ20 => 'What is Bufferbloat?';
+
+  @override
+  String get faqA20 =>
+      'Bufferbloat is high latency that occurs when there is a lot of traffic on your network. It\'s caused by routers buffering too much data. NetChui\'s \'Loaded Latency\' helps identify this.';
+
+  @override
+  String get faqQ21 => 'Why is my ping different in games?';
+
+  @override
+  String get faqA21 =>
+      'Game pings depend on the location of the game\'s specific servers. NetChui tests against general edge servers. If the game server is further away, your ping will be higher.';
+
+  @override
+  String get faqQ22 => 'Can I trust \'Free Wi-Fi\'?';
+
+  @override
+  String get faqA22 =>
+      'Open Wi-Fi networks can be risky. We recommend using NetChui\'s Port Scan and Security Audit to check for common vulnerabilities when connected to public networks.';
+
+  @override
+  String get faqQ23 => 'Does my device age matter?';
+
+  @override
+  String get faqA23 =>
+      'Yes. Older phones or laptops may have slower Wi-Fi chips (e.g., Wi-Fi 4 instead of Wi-Fi 6), which limits the maximum speed they can handle regardless of your internet plan.';
+
+  @override
+  String get faqQ24 => 'How does NetChui choose a server?';
+
+  @override
+  String get faqA24 =>
+      'By default, NetChui selects the server with the lowest latency to your location. You can manually override this in Settings if you want to test connectivity to a specific region.';
+
+  @override
+  String get faqQ25 => 'Can I change the test unit?';
+
+  @override
+  String get faqA25 =>
+      'Currently, NetChui displays results in Mbps (Megabits per second) as it is the industry standard for network speed. We are looking into adding a MB/s toggle in future updates.';
+
+  @override
+  String get faqQ26 => 'Does my device case affect Wi-Fi?';
+
+  @override
+  String get faqA26 =>
+      'Metal or very thick plastic cases can occasionally attenuate Wi-Fi and cellular signals. If you notice significantly lower speeds, try testing without the case.';
+
+  @override
+  String get faqQ27 => 'Why does my speed drop at night?';
+
+  @override
+  String get faqA27 =>
+      'Network congestion often peaks in the evening when more people in your neighborhood are streaming video. This is common on cable and fixed-wireless networks.';
+
+  @override
+  String get faqQ28 => 'What is a \'Handshake\'?';
+
+  @override
+  String get faqA28 =>
+      'A network handshake is the automated process of negotiation between two devices to establish a connection. High latency can make this process feel sluggish.';
+
+  @override
+  String get faqQ29 => 'How do I read the Signal Graph?';
+
+  @override
+  String get faqA29 =>
+      'The graph shows your signal strength over time. A flat line means a stable connection, while sharp \'valleys\' indicate interference or physical obstructions.';
+
+  @override
+  String get faqQ30 => 'What are \'Open Ports\'?';
+
+  @override
+  String get faqA30 =>
+      'Ports are virtual doorways for data. While some are necessary, unnecessary open ports can be a security risk. NetChui\'s Port Scan helps you identify these.';
+
+  @override
+  String get guide1Title => 'Understanding Results';
+
+  @override
+  String get guide1Body =>
+      'Learn what Ping, Download, and Upload speeds mean for your daily internet usage.';
+
+  @override
+  String get guide2Title => 'Optimizing Wi-Fi';
+
+  @override
+  String get guide2Body =>
+      'Tips on router placement and frequency selection to improve your home network.';
+
+  @override
+  String get guide3Title => '4G vs 5G Explained';
+
+  @override
+  String get guide3Body =>
+      'The differences in latency and speed when using cellular data and how to get the best signal.';
+
+  @override
+  String get guide4Title => 'Troubleshooting Slow Internet';
+
+  @override
+  String get guide4Body =>
+      'Step-by-step guide to identify if the issue is with your device, router, or your Service Provider.';
+
+  @override
+  String get guide5Title => 'Security Best Practices';
+
+  @override
+  String get guide5Body =>
+      'How to stay safe on public Wi-Fi and why NetChui\'s security audit is important.';
+
+  @override
+  String get guide6Title => 'Advanced Router Settings';
+
+  @override
+  String get guide6Body =>
+      'A look into QoS, DNS overrides, and firmware updates to squeeze every bit of speed out of your hardware.';
+
+  @override
+  String get guide7Title => 'Interpreting Insights';
+
+  @override
+  String get guide7Body =>
+      'How to use the Insights tab to track your network health score and stability over time.';
+
+  @override
+  String get guide8Title => 'Combating Interference';
+
+  @override
+  String get guide8Body =>
+      'How common household items like microwaves and cordless phones can disrupt your Wi-Fi signal.';
+
+  @override
+  String get guide9Title => 'Mesh vs. Extenders';
+
+  @override
+  String get guide9Body =>
+      'Which technology is better for covering large homes and how they impact your overall throughput.';
+
+  @override
+  String get guide10Title => 'Data Caps & Throttling';
+
+  @override
+  String get guide10Body =>
+      'How to tell if your ISP is intentionally slowing down your connection based on your usage.';
+
+  @override
+  String get guide11Title => 'Gaming Lag Fixes';
+
+  @override
+  String get guide11Body =>
+      'Techniques like using Ethernet, disabling background updates, and choosing the right game servers.';
+
+  @override
+  String get guide12Title => 'Home Office Setup';
+
+  @override
+  String get guide12Body =>
+      'Optimizing your network for stable Zoom and Teams calls without dropouts or \'robotic\' audio.';
+
+  @override
+  String get guide13Title => 'LAN Scanner Security';
+
+  @override
+  String get guide13Body =>
+      'Using the LAN scanner to find unauthorized devices connected to your private Wi-Fi network.';
+
+  @override
+  String get guide14Title => 'Battery & Background Scanning';
+
+  @override
+  String get guide14Body =>
+      'Understanding how NetChui balances real-time signal monitoring with your device\'s battery life.';
+
+  @override
+  String get guide15Title => 'Future Proofing Your Home';
+
+  @override
+  String get guide15Body =>
+      'What to look for in your next router (Wi-Fi 6E/7) to ensure your home network stays fast for years.';
 
   @override
   String get trend => 'Download trend';
@@ -940,4 +1300,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get speedHistory => 'Speed History';
+
+  @override
+  String get exportAllData => 'Export All Data';
+
+  @override
+  String get dnsError => 'DNS Error';
+
+  @override
+  String get whoisError => 'WHOIS Error';
+
+  @override
+  String get portScanError => 'Port Scan Error';
+
+  @override
+  String noRecordsFound(Object host) {
+    return 'No records found for $host';
+  }
+
+  @override
+  String noPortsFound(Object host) {
+    return 'No common open ports found on $host';
+  }
+
+  @override
+  String get whoisInfo => 'WHOIS Info';
+
+  @override
+  String retrievedWhois(Object host) {
+    return 'Retrieved record for $host';
+  }
+
+  @override
+  String get clearActivityLogs => 'Clear Activity Logs';
+
+  @override
+  String get clearActivityLogsConfirm =>
+      'Are you sure you want to delete all activity logs and signal history?';
+
+  @override
+  String get deleteAll => 'Delete All';
+
+  @override
+  String runningTool(Object tool) {
+    return 'RUNNING $tool...';
+  }
+
+  @override
+  String get personalDevice => 'Personal Device';
+
+  @override
+  String get appleDevice => 'Apple Device';
+
+  @override
+  String get mobileDevice => 'Mobile Device';
+
+  @override
+  String get smartHome => 'Smart Home';
+
+  @override
+  String get performanceEmptyState =>
+      'Start your first speed test to see performance trends here.';
+
+  @override
+  String get signalEmptyState =>
+      'Your signal strength over time will appear here as you move around.';
+
+  @override
+  String get activityEmptyState =>
+      'All your diagnostic runs and network scans will be logged here.';
+
+  @override
+  String scanError(Object error) {
+    return 'Scan error: $error';
+  }
+
+  @override
+  String get copy => 'Copy';
 }

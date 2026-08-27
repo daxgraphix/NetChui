@@ -4,6 +4,21 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val keystoreProperties: Map<String, String>? = run {
+    val f = rootProject.file("key.properties")
+    if (f.exists()) {
+        f.readLines()
+            .map { it.trim() }
+            .filter { it.isNotEmpty() && !it.startsWith("#") && it.contains("=") }
+            .associate { line ->
+                val idx = line.indexOf('=')
+                line.substring(0, idx).trim() to line.substring(idx + 1).trim()
+            }
+    } else {
+        null
+    }
+}
+
 android {
     namespace = "co.netchui.mobile"
     compileSdk = 36
@@ -55,6 +70,15 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+
+            if (keystoreProperties != null) {
+                signingConfig = signingConfigs.create("release") {
+                    keyAlias = keystoreProperties.getValue("keyAlias")
+                    keyPassword = keystoreProperties.getValue("keyPassword")
+                    storeFile = file("../" + keystoreProperties.getValue("storeFile"))
+                    storePassword = keystoreProperties.getValue("storePassword")
+                }
+            }
         }
     }
 }

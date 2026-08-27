@@ -9,6 +9,7 @@ import 'package:net_chui/theme/app_theme.dart';
 import 'package:net_chui/widgets/app_header.dart';
 import 'package:net_chui/widgets/gradient_background.dart';
 import 'package:net_chui/widgets/glass_card.dart';
+import 'package:net_chui/widgets/section_title.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -65,7 +66,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         children: [
                           if (isNewDay) ...[
                             const SizedBox(height: Spacing.xl),
-                            _SectionTitle(DateFormat.yMMMMd().format(entry.timestamp).toUpperCase()),
+                            SectionTitle(DateFormat.yMMMMd().format(entry.timestamp)),
                             const SizedBox(height: Spacing.md),
                           ],
                           Padding(
@@ -108,22 +109,32 @@ class _HistoryScreenState extends State<HistoryScreen> {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: context.netChui.surface.withValues(alpha: 0.05),
+              color: context.netChui.accent.withValues(alpha: 0.05),
               shape: BoxShape.circle,
+              border: Border.all(color: context.netChui.accent.withValues(alpha: 0.1)),
             ),
             child: Icon(
               Icons.history_toggle_off_rounded,
               size: 64,
-              color: context.netChui.text.withValues(alpha: 0.2),
+              color: context.netChui.accent.withValues(alpha: 0.3),
             ),
           ),
           const SizedBox(height: 24),
           Text(
             s.noHistory,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
                   color: context.netChui.text.withValues(alpha: 0.6),
                 ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Your speed test results will appear here",
+            style: TextStyle(
+              color: context.netChui.muted,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -157,47 +168,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: context.netChui.accent.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: Center(
-            child: Container(
-              width: 4,
-              height: 4,
-              decoration: BoxDecoration(
-                color: context.netChui.accent,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.5,
-            color: context.netChui.muted,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _HistoryTile extends StatelessWidget {
   const _HistoryTile({required this.entry});
 
@@ -208,6 +178,7 @@ class _HistoryTile extends StatelessWidget {
     final r = entry.result;
     final colors = context.netChui;
     final isWifi = entry.connectionType.toLowerCase().contains('wifi');
+    final indicatorColor = isWifi ? colors.secondary : colors.warning;
 
     return GlassCard(
       padding: EdgeInsets.zero,
@@ -222,83 +193,109 @@ class _HistoryTile extends StatelessWidget {
           ),
         );
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: Spacing.lg, vertical: Spacing.lg),
+      child: IntrinsicHeight(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              padding: const EdgeInsets.all(Spacing.md),
+              width: 4,
               decoration: BoxDecoration(
-                color: (isWifi ? AppColors.secondary : AppColors.warning).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(
-                isWifi ? Icons.wifi_rounded : Icons.signal_cellular_alt_rounded,
-                size: 20,
-                color: isWifi ? AppColors.secondary : AppColors.warning,
+                color: indicatorColor,
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(2)),
               ),
             ),
-            const SizedBox(width: Spacing.lg),
+            const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        DateFormat.jm().format(entry.timestamp),
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              color: colors.text,
-                              fontFamily: 'JetBrainsMono',
-                            ),
-                      ),
-                      const SizedBox(width: 8),
-                      if (r.isp != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: colors.accent.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            r.isp!.split(' ').first.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                              color: colors.accent,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: Spacing.lg),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: indicatorColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: indicatorColor.withValues(alpha: 0.15),
+                          width: 1,
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      _CompactMetric(
-                        value: r.downloadMbps?.toStringAsFixed(1) ?? '—',
-                        unit: 'Mb/s',
-                        color: colors.accent,
                       ),
-                      const SizedBox(width: 12),
-                      _CompactMetric(
-                        value: r.uploadMbps?.toStringAsFixed(1) ?? '—',
-                        unit: 'Mb/s',
-                        color: AppColors.purple,
+                      child: Icon(
+                        isWifi ? Icons.wifi_rounded : Icons.signal_cellular_alt_rounded,
+                        size: 22,
+                        color: indicatorColor,
                       ),
-                      const SizedBox(width: 12),
-                      _CompactMetric(
-                        value: r.pingMs?.round().toString() ?? '—',
-                        unit: 'ms',
-                        color: AppColors.blue,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                DateFormat.jm().format(entry.timestamp),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontFamily: 'JetBrainsMono',
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              if (r.isp != null)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: colors.accent.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    r.isp!.split(' ').first.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w900,
+                                      color: colors.accent,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _CompactMetric(
+                                label: 'DL',
+                                value: r.downloadMbps?.toStringAsFixed(1) ?? '—',
+                                unit: 'Mb/s',
+                                color: colors.accent,
+                              ),
+                              _CompactMetric(
+                                label: 'UL',
+                                value: r.uploadMbps?.toStringAsFixed(1) ?? '—',
+                                unit: 'Mb/s',
+                                color: AppColors.purple,
+                              ),
+                              _CompactMetric(
+                                label: 'PNG',
+                                value: r.pingMs?.round().toString() ?? '—',
+                                unit: 'ms',
+                                color: colors.info,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, size: 14, color: colors.subtle),
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Icon(Icons.arrow_forward_ios_rounded, size: 12, color: colors.subtle),
+            ),
           ],
         ),
       ),
@@ -307,34 +304,55 @@ class _HistoryTile extends StatelessWidget {
 }
 
 class _CompactMetric extends StatelessWidget {
-  const _CompactMetric({required this.value, required this.unit, required this.color});
+  const _CompactMetric({
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.color,
+  });
+  final String label;
   final String value;
   final String unit;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w900,
-            fontFamily: 'JetBrainsMono',
-            color: color,
-          ),
-        ),
-        const SizedBox(width: 1),
-        Text(
-          unit,
+          label,
           style: TextStyle(
             fontSize: 8,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w900,
             color: context.netChui.muted,
+            letterSpacing: 0.5,
           ),
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                fontFamily: 'JetBrainsMono',
+                color: color,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(width: 1),
+            Text(
+              unit,
+              style: TextStyle(
+                fontSize: 8,
+                fontWeight: FontWeight.w800,
+                color: context.netChui.muted,
+              ),
+            ),
+          ],
         ),
       ],
     );

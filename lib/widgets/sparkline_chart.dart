@@ -124,26 +124,35 @@ class _SparklinePainter extends CustomPainter {
     }
 
     final fillPath = Path()..moveTo(points.first.dx, size.height);
-    for (final p in points) {
-      fillPath.lineTo(p.dx, p.dy);
+    final linePath = Path()..moveTo(points.first.dx, points.first.dy);
+
+    if (points.length > 2) {
+      for (var i = 0; i < points.length - 1; i++) {
+        final p0 = points[i];
+        final p1 = points[i + 1];
+        final controlPoint1 = Offset(p0.dx + (p1.dx - p0.dx) / 2, p0.dy);
+        final controlPoint2 = Offset(p0.dx + (p1.dx - p0.dx) / 2, p1.dy);
+        
+        linePath.cubicTo(
+          controlPoint1.dx, controlPoint1.dy,
+          controlPoint2.dx, controlPoint2.dy,
+          p1.dx, p1.dy,
+        );
+        fillPath.cubicTo(
+          controlPoint1.dx, controlPoint1.dy,
+          controlPoint2.dx, controlPoint2.dy,
+          p1.dx, p1.dy,
+        );
+      }
+    } else {
+      for (var i = 1; i < points.length; i++) {
+        linePath.lineTo(points[i].dx, points[i].dy);
+        fillPath.lineTo(points[i].dx, points[i].dy);
+      }
     }
+
     fillPath.lineTo(points.last.dx, size.height);
     fillPath.close();
-
-    canvas.drawPath(
-      fillPath,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [accent.withValues(alpha: 0.2), accent.withValues(alpha: 0)],
-        ).createShader(Rect.fromLTWH(0, 0, size.width, size.height)),
-    );
-
-    final linePath = Path()..moveTo(points.first.dx, points.first.dy);
-    for (var i = 1; i < points.length; i++) {
-      linePath.lineTo(points[i].dx, points[i].dy);
-    }
 
     canvas.drawPath(
       linePath,

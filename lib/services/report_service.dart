@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -53,6 +55,12 @@ class ReportService {
     final now = DateTime.now();
     final dateStr = DateFormat.yMMMMd('en').add_jm().format(now);
     
+    // Fetch recent signal history for the report
+    final signalLogs = await StorageService.instance.getSignalHistory(
+      DateTime.now().subtract(const Duration(hours: 24))
+    );
+    final signalValues = signalLogs.map((l) => l.signalDbm ?? -100.0).toList();
+
     // Captured state to pass to isolate
     final healthScore = state.networkHealthScore;
     final healthLabel = state.networkHealthLabel;
@@ -65,6 +73,7 @@ class ReportService {
       'hardwareInfo': hardwareInfo,
       'connectionLabel': connectionLabel,
       'dateStr': dateStr,
+      'signalValues': signalValues,
       'strings': {
         'healthAudit': s.healthAudit,
         'overallHealthScore': s.overallHealthScore,
@@ -160,19 +169,24 @@ class ReportService {
 
               // Signal Trend Simulation in PDF (Bar chart)
               pw.SizedBox(height: 20),
-              pw.Text('Signal History (Recent)', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+              pw.Text('Signal History (Past 24h)', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 10),
               pw.Container(
                 height: 50,
                 child: pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
-                  children: List.generate(20, (index) {
-                    final value = 30 + (index % 5) * 10; // Dummy trend
+                  children: List.generate((data['signalValues'] as List).length.clamp(0, 40), (index) {
+                    final values = data['signalValues'] as List<double>;
+                    // Normalize dBm to height (e.g., -100 to -30 range)
+                    final dbm = values[index];
+                    final normalizedHeight = ((dbm + 100).clamp(0, 70) / 70) * 50;
                     return pw.Expanded(
                       child: pw.Container(
-                        margin: const pw.EdgeInsets.symmetric(horizontal: 1),
-                        height: value.toDouble(),
-                        decoration: const pw.BoxDecoration(color: PdfColors.red300),
+                        margin: const pw.EdgeInsets.symmetric(horizontal: 0.5),
+                        height: normalizedHeight,
+                        decoration: pw.BoxDecoration(
+                          color: dbm < -80 ? PdfColors.red300 : (dbm < -70 ? PdfColors.orange300 : PdfColors.green300),
+                        ),
                       ),
                     );
                   }),
@@ -336,6 +350,57 @@ class ReportService {
     buffer.writeln('\n${s.generatedBy}');
     
     await Share.share(buffer.toString(), subject: '${s.diagnosticReport}: $title');
+  }
+
+  Future<void> exportAllData() async {
+    final logs = await StorageService.instance.loadNetworkLogs();
+    final history = await StorageService.instance.loadHistory();
+    final packageInfo = await PackageInfo.fromPlatform();
+    
+    final data = {
+      'exported_at': DateTime.now().toIso8601String(),
+      'app_version': packageInfo.version,
+      'build_number': packageInfo.buildNumber,
+      'network_logs': logs.map((l) => {
+        'id': l.id,
+        'timestamp': l.timestamp.toIso8601String(),
+        'type': l.type,
+        'category': l.category,
+        'severity': l.severity,
+        'title': l.title,
+        'subtitle': l.subtitle,
+        'signalDbm': l.signalDbm,
+        'recommendation': l.recommendation,
+        'rawData': l.rawData,
+      }).toList(),
+      'history_entries': history.map((h) => {
+        'id': h.id,
+        'timestamp': h.timestamp.toIso8601String(),
+        'connection_type': h.connectionType,
+        'server_id': h.serverId,
+        'test_mode': h.testMode.toString(),
+        'test_size': h.testSizeName,
+        'isp': h.isp,
+        'download': h.downloadMbps,
+        'upload': h.uploadMbps,
+        'ping': h.pingMs,
+        'ping_min': h.pingMinMs,
+        'ping_max': h.pingMaxMs,
+        'jitter': h.jitterMs,
+        'public_ip': h.publicIp,
+        'location_hint': h.locationHint,
+        'country_code': h.countryCode,
+        'download_ping': h.downloadPingMs,
+        'upload_ping': h.uploadPingMs,
+      }).toList(),
+    };
+
+    final jsonString = const JsonEncoder.withIndent('  ').convert(data);
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/netchui_export_${DateTime.now().millisecondsSinceEpoch}.json');
+    await file.writeAsString(jsonString);
+
+    await Share.shareXFiles([XFile(file.path)], text: 'NetChui Data Export');
   }
 
   Future<void> printPdf(HistoryEntry entry) async {

@@ -86,8 +86,10 @@ class HealthAnalysisService {
       final previous = recentHistory.skip(1).first.result.downloadMbps ?? 0;
       final avg = recentHistory.map((e) => e.result.downloadMbps ?? 0).reduce((a, b) => a + b) / recentHistory.length;
       
-      // Arbitrary score based on 100Mbps being "perfect" for mobile/typical use
-      final speedScore = (avg / 100).clamp(0.0, 1.0);
+      // Calculate score based on both speed and frequency of testing
+      // More tests = more reliable health score
+      final reliabilityFactor = (recentHistory.length / 5).clamp(0.7, 1.0);
+      final speedScore = ((avg / 100).clamp(0.0, 1.0)) * reliabilityFactor;
       
       metrics.add(HealthMetric(
         label: s.healthMetricDownloadSpeed,
@@ -102,6 +104,21 @@ class HealthAnalysisService {
         insights.add(s.insightSlowSpeed);
       }
     }
+
+    // 2b. Link Speed and Connection Type Analysis (New)
+    try {
+      final currentAp = await NetworkAnalysisService().getCurrentAccessPoint();
+      if (currentAp != null) {
+        // Higher signal strength and standard (e.g., 5GHz) contributes positively
+        final is5GHz = currentAp.frequency > 4000;
+        
+        // We can't directly add as a metric if we want to keep current UI structure,
+        // but we can adjust totalScore or add it as an insight.
+        if (!is5GHz && currentAp.frequency < 3000) {
+          insights.add('Recommendation: You are connected to a 2.4GHz network. Switching to 5GHz could significantly improve throughput.');
+        }
+      }
+    } catch (_) {}
 
     // 3. DNS & Latency
     final dnsLogs = logs.where((l) => l.type == 'DNS_BENCHMARK').toList();

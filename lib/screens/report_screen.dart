@@ -1,15 +1,45 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:net_chui/app/app_state.dart';
 import 'package:net_chui/screens/insights_screen.dart';
+import 'package:net_chui/services/haptic_service.dart';
 import 'package:net_chui/services/report_service.dart';
 import 'package:net_chui/theme/app_theme.dart';
 import 'package:net_chui/widgets/app_header.dart';
 import 'package:net_chui/widgets/gradient_background.dart';
 import 'package:net_chui/widgets/glass_card.dart';
+import 'package:net_chui/widgets/section_title.dart';
 
-class ReportScreen extends StatelessWidget {
+class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
+
+  @override
+  State<ReportScreen> createState() => _ReportScreenState();
+}
+
+class _ReportScreenState extends State<ReportScreen> {
+  bool _isExporting = false;
+
+  Future<void> _runExport(Future<void> Function() exportAction) async {
+    setState(() => _isExporting = true);
+    HapticService.light();
+    try {
+      await exportAction();
+      HapticService.success();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Export failed: ${e.toString()}'),
+            backgroundColor: context.netChui.accent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isExporting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,78 +52,132 @@ class ReportScreen extends StatelessWidget {
 
         return Scaffold(
           body: GradientBackground(
-            child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                AppHeader(
-                  title: state.strings.report,
-                  expandedHeight: 120,
-                  leading: IconButton(
-                    icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.netChui.text),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.picture_as_pdf_rounded),
-                      onPressed: () => _showExportOptions(context),
+            child: Stack(
+              children: [
+                CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    AppHeader(
+                      title: state.strings.report,
+                      expandedHeight: 120,
+                      leading: IconButton(
+                        icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.netChui.text),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      actions: [
+                        IconButton(
+                          icon: const Icon(Icons.picture_as_pdf_rounded),
+                          onPressed: () => _showExportOptions(context),
+                        ),
+                      ],
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(Spacing.lg, Spacing.lg, Spacing.lg, 120),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          if (!state.isOnline)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: Spacing.md),
+                              child: GlassCard(
+                                color: AppColors.orange,
+                                opacity: 0.1,
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.offline_bolt_rounded, color: AppColors.orange, size: 16),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Offline Mode: Viewing Cached Data',
+                                      style: TextStyle(
+                                        color: AppColors.orange,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          _buildSummaryCard(context, state),
+                          const SizedBox(height: Spacing.xl),
+                          SectionTitle(state.strings.networkScore),
+                          const GlassCard(
+                            padding: EdgeInsets.all(Spacing.lg),
+                            child: InsightsScreen(isInternal: true),
+                          ),
+                          const SizedBox(height: Spacing.xl),
+                          SectionTitle(state.strings.deviceAndSystem),
+                          _buildInfoCard(context, [
+                            _InfoRow(label: state.strings.model, value: hardware.model ?? 'Unknown'),
+                            _InfoRow(label: state.strings.brand, value: hardware.brand ?? 'Unknown'),
+                            _InfoRow(
+                              label: state.strings.os, 
+                              value: '${Platform.isAndroid ? "Android" : "iOS"} ${hardware.osVersion ?? "Unknown"}', 
+                              isMonospace: true
+                            ),
+                            _InfoRow(label: state.strings.level, value: '${Platform.isAndroid ? "API" : "SDK"} ${hardware.sdkVersion ?? "—"}', isMonospace: true),
+                          ]),
+                          const SizedBox(height: Spacing.xl),
+                          SectionTitle(state.strings.networkState),
+                          _buildInfoCard(context, [
+                            _InfoRow(label: state.strings.connection, value: state.connectionLabel),
+                            _InfoRow(label: state.strings.publicIp, value: hardware.publicIp ?? '—', isMonospace: true),
+                            _InfoRow(label: 'Local IP', value: hardware.ipAddress ?? '—', isMonospace: true),
+                            _InfoRow(label: 'Signal Strength', value: '${hardware.rssi ?? "—"} dBm'),
+                          ]),
+                          const SizedBox(height: Spacing.xl),
+                          SectionTitle(state.strings.lastTestPerformance),
+                          if (lastTest != null)
+                            _buildInfoCard(context, [
+                              _InfoRow(label: state.strings.download, value: '${lastTest.result.downloadMbps?.toStringAsFixed(1)} Mbps', isMonospace: true),
+                              _InfoRow(label: state.strings.upload, value: '${lastTest.result.uploadMbps?.toStringAsFixed(1)} Mbps', isMonospace: true),
+                              _InfoRow(label: state.strings.ping, value: '${lastTest.result.pingMs?.toStringAsFixed(0)} ms', isMonospace: true),
+                              _InfoRow(label: state.strings.jitter, value: '${lastTest.result.jitterMs?.toStringAsFixed(1)} ms', isMonospace: true),
+                              _InfoRow(label: state.strings.isp, value: lastTest.result.isp ?? '—'),
+                              _InfoRow(label: state.strings.date, value: DateFormat.yMMMMd().add_jm().format(lastTest.timestamp)),
+                            ])
+                          else
+                            _buildEmptyCard(context, state.strings.noTestDataYet),
+                          const SizedBox(height: Spacing.xxl),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: FilledButton.icon(
+                              onPressed: _isExporting ? null : () => _showExportOptions(context),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: context.netChui.accent,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              ),
+                              icon: _isExporting 
+                                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                : const Icon(Icons.share_rounded),
+                              label: Text(
+                                _isExporting ? 'GENERATING...' : state.strings.exportReports, 
+                                style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1.1)
+                              ),
+                            ),
+                          ),
+                        ]),
+                      ),
                     ),
                   ],
                 ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(Spacing.lg, Spacing.lg, Spacing.lg, 120),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                        _buildSummaryCard(context, state),
-                      const SizedBox(height: Spacing.xl),
-                      _buildSectionTitle(context, state.strings.networkScore),
-                      const GlassCard(
-                        padding: EdgeInsets.all(Spacing.lg),
-                        child: InsightsScreen(isInternal: true),
-                      ),
-                      const SizedBox(height: Spacing.xl),
-                      _buildSectionTitle(context, state.strings.deviceAndSystem),
-                      _buildInfoCard(context, [
-                        _InfoRow(label: state.strings.model, value: hardware.model ?? 'Unknown'),
-                        _InfoRow(label: state.strings.brand, value: hardware.brand ?? 'Unknown'),
-                        _InfoRow(label: state.strings.os, value: 'Android ${hardware.osVersion ?? "Unknown"}', isMonospace: true),
-                        _InfoRow(label: state.strings.level, value: 'API ${hardware.sdkVersion ?? "—"}', isMonospace: true),
-                      ]),
-                      const SizedBox(height: Spacing.xl),
-                      _buildSectionTitle(context, state.strings.networkState),
-                      _buildInfoCard(context, [
-                        _InfoRow(label: state.strings.connection, value: state.connectionLabel),
-                        _InfoRow(label: state.strings.publicIp, value: lastTest?.result.publicIp ?? '—', isMonospace: true),
-                      ]),
-                      const SizedBox(height: Spacing.xl),
-                      _buildSectionTitle(context, state.strings.lastTestPerformance),
-                      if (lastTest != null)
-                        _buildInfoCard(context, [
-                          _InfoRow(label: state.strings.download, value: '${lastTest.result.downloadMbps?.toStringAsFixed(1)} Mbps', isMonospace: true),
-                          _InfoRow(label: state.strings.upload, value: '${lastTest.result.uploadMbps?.toStringAsFixed(1)} Mbps', isMonospace: true),
-                          _InfoRow(label: state.strings.ping, value: '${lastTest.result.pingMs?.toStringAsFixed(0)} ms', isMonospace: true),
-                          _InfoRow(label: state.strings.jitter, value: '${lastTest.result.jitterMs?.toStringAsFixed(1)} ms', isMonospace: true),
-                          _InfoRow(label: state.strings.isp, value: lastTest.result.isp ?? '—'),
-                          _InfoRow(label: state.strings.date, value: DateFormat.yMMMMd().add_jm().format(lastTest.timestamp)),
-                        ])
-                      else
-                        _buildEmptyCard(context, state.strings.noTestDataYet),
-                      const SizedBox(height: Spacing.xxl),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: FilledButton.icon(
-                          onPressed: () => _showExportOptions(context),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: context.netChui.accent,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          ),
-                          icon: const Icon(Icons.share_rounded),
-                          label: Text(state.strings.exportReports, style: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1.1)),
+                if (_isExporting)
+                  Container(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    child: const Center(
+                      child: GlassCard(
+                        padding: EdgeInsets.all(Spacing.xl),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 16),
+                            Text('Preparing Report...', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ],
                         ),
                       ),
-                    ]),
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -144,7 +228,7 @@ class ReportScreen extends StatelessWidget {
                 subtitle: Text(s.healthScoreAuditSubtitle),
                 onTap: () {
                   Navigator.pop(context);
-                  ReportService.instance.generateHealthReport();
+                  _runExport(() => ReportService.instance.generateHealthReport());
                 },
               ),
               ListTile(
@@ -156,7 +240,7 @@ class ReportScreen extends StatelessWidget {
                 subtitle: Text(s.securityAuditSubtitle),
                 onTap: () {
                   Navigator.pop(context);
-                  ReportService.instance.generateSecurityReport();
+                  _runExport(() => ReportService.instance.generateSecurityReport());
                 },
               ),
               ListTile(
@@ -168,7 +252,7 @@ class ReportScreen extends StatelessWidget {
                 subtitle: Text(s.fullNetworkAuditSubtitle),
                 onTap: () {
                   Navigator.pop(context);
-                  ReportService.instance.generateComprehensiveReport();
+                  _runExport(() => ReportService.instance.generateComprehensiveReport());
                 },
               ),
               ListTile(
@@ -180,50 +264,12 @@ class ReportScreen extends StatelessWidget {
                 subtitle: Text(s.performanceLogsSubtitle),
                 onTap: () {
                   Navigator.pop(context);
-                  ReportService.instance.generateFilteredReport(category: 'PERFORMANCE');
+                  _runExport(() => ReportService.instance.generateFilteredReport(category: 'PERFORMANCE'));
                 },
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 10, top: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: context.netChui.accent.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(3),
-            ),
-            child: Center(
-              child: Container(
-                width: 4,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: context.netChui.accent,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
-              color: context.netChui.muted,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -235,49 +281,84 @@ class ReportScreen extends StatelessWidget {
         context,
         MaterialPageRoute(builder: (_) => const InsightsScreen()),
       ),
-      child: Container(
-        padding: const EdgeInsets.all(Spacing.xl),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              context.netChui.accent.withValues(alpha: 0.15),
-              context.netChui.accent.withValues(alpha: 0.05),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  AppState.instance.strings.networkState,
-                  style: TextStyle(
-                    color: context.netChui.accent, 
-                    fontWeight: FontWeight.w900,
-                    fontSize: 11,
-                    letterSpacing: 1.5,
+            Container(
+              width: 4,
+              decoration: BoxDecoration(
+                color: context.netChui.accent,
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(2)),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(Spacing.xl),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      context.netChui.accent.withValues(alpha: 0.12),
+                      context.netChui.accent.withValues(alpha: 0.02),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
                 ),
-                Icon(Icons.wifi_tethering_rounded, color: context.netChui.accent, size: 16),
-              ],
-            ),
-            const SizedBox(height: Spacing.md),
-            Text(
-              state.isOnline ? state.connectionLabel : 'Offline',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5),
-            ),
-            const SizedBox(height: Spacing.xl),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _MiniStat(label: state.strings.download, value: state.lastHistoryEntry?.result.downloadMbps?.toStringAsFixed(1) ?? '0.0', unit: 'Mb/s'),
-                _MiniStat(label: state.strings.upload, value: state.lastHistoryEntry?.result.uploadMbps?.toStringAsFixed(1) ?? '0.0', unit: 'Mb/s'),
-                _MiniStat(label: state.strings.ping, value: state.lastHistoryEntry?.result.pingMs?.toStringAsFixed(0) ?? '0', unit: 'ms'),
-              ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppState.instance.strings.networkState.toUpperCase(),
+                          style: TextStyle(
+                            color: context.netChui.accent,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 11,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                        Icon(Icons.wifi_tethering_rounded, color: context.netChui.accent, size: 16),
+                      ],
+                    ),
+                    const SizedBox(height: Spacing.md),
+                    Text(
+                      (state.isOnline ? state.connectionLabel : 'Offline').toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -1.5,
+                      ),
+                    ),
+                    const SizedBox(height: Spacing.xl),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _MiniStat(
+                          label: state.strings.download,
+                          value: state.lastHistoryEntry?.result.downloadMbps?.toStringAsFixed(1) ?? '0.0',
+                          unit: 'Mb/s',
+                          color: context.netChui.accent,
+                        ),
+                        _MiniStat(
+                          label: state.strings.upload,
+                          value: state.lastHistoryEntry?.result.uploadMbps?.toStringAsFixed(1) ?? '0.0',
+                          unit: 'Mb/s',
+                          color: AppColors.purple,
+                        ),
+                        _MiniStat(
+                          label: state.strings.ping,
+                          value: state.lastHistoryEntry?.result.pingMs?.toStringAsFixed(0) ?? '0',
+                          unit: 'ms',
+                          color: context.netChui.info,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -327,7 +408,14 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: context.netChui.muted, fontSize: 13, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: TextStyle(
+              color: context.netChui.muted,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(width: Spacing.md),
           Flexible(
             child: Text(
@@ -335,7 +423,7 @@ class _InfoRow extends StatelessWidget {
               textAlign: TextAlign.end,
               style: TextStyle(
                 color: context.netChui.text,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
                 fontFamily: isMonospace ? 'JetBrainsMono' : null,
                 fontSize: 14,
               ),
@@ -348,10 +436,11 @@ class _InfoRow extends StatelessWidget {
 }
 
 class _MiniStat extends StatelessWidget {
-  const _MiniStat({required this.label, required this.value, this.unit});
+  const _MiniStat({required this.label, required this.value, this.unit, this.color});
   final String label;
   final String value;
   final String? unit;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -359,11 +448,11 @@ class _MiniStat extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label.toUpperCase(), 
+          label.toUpperCase(),
           style: TextStyle(
-            color: context.netChui.muted, 
-            fontSize: 9, 
-            fontWeight: FontWeight.w800, 
+            color: context.netChui.muted,
+            fontSize: 9,
+            fontWeight: FontWeight.w900,
             letterSpacing: 1.2,
           ),
         ),
@@ -373,21 +462,22 @@ class _MiniStat extends StatelessWidget {
           textBaseline: TextBaseline.alphabetic,
           children: [
             Text(
-              value, 
+              value,
               style: TextStyle(
-                color: context.netChui.text, 
-                fontSize: 20, 
+                color: color ?? context.netChui.text,
+                fontSize: 20,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'JetBrainsMono',
+                letterSpacing: -0.5,
               ),
             ),
             if (unit != null) ...[
               const SizedBox(width: 4),
               Text(
-                unit!, 
+                unit!,
                 style: TextStyle(
-                  color: context.netChui.muted.withValues(alpha: 0.8), 
-                  fontSize: 10, 
+                  color: context.netChui.muted.withValues(alpha: 0.8),
+                  fontSize: 10,
                   fontWeight: FontWeight.w800,
                 ),
               ),

@@ -5,6 +5,7 @@ import '../models/network_log.dart';
 import '../models/history_entry.dart';
 import '../services/storage_service.dart';
 import '../services/health_analysis_service.dart';
+import '../services/report_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/glass_card.dart';
@@ -14,6 +15,7 @@ import 'insights/signal_tab.dart';
 import 'insights/activity_tab.dart';
 
 import 'package:net_chui/app/app_state.dart';
+import 'package:net_chui/widgets/section_title.dart';
 import 'package:net_chui/widgets/offline_overlay.dart';
 import 'package:net_chui/widgets/base_modal.dart';
 
@@ -119,6 +121,11 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
                   surfaceTintColor: Colors.transparent,
                   elevation: 0,
                   actions: [
+                    IconButton(
+                      icon: const Icon(Icons.download_rounded, color: Colors.white),
+                      tooltip: s.exportAllData,
+                      onPressed: () => ReportService.instance.exportAllData(),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.delete_sweep_rounded, color: Colors.white),
                       tooltip: 'Clear All Logs',
@@ -239,14 +246,14 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear Activity Logs'),
-        content: const Text('Are you sure you want to delete all activity logs and signal history?'),
+        title: Text(s.clearActivityLogs),
+        content: Text(s.clearActivityLogsConfirm),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: Text(s.cancel)),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: context.netChui.accent),
-            child: const Text('Delete All'),
+            child: Text(s.deleteAll),
           ),
         ],
       ),
@@ -281,7 +288,7 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
       emptyState: EmptyState(
         icon: Icons.speed_outlined,
         title: s.noSpeedHistory,
-        message: 'Start your first speed test to see performance trends here.',
+        message: s.performanceEmptyState,
       ),
     );
   }
@@ -294,7 +301,7 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
       emptyState: EmptyState(
         icon: Icons.cell_tower_rounded,
         title: s.noSignalHistory,
-        message: 'Your signal strength over time will appear here as you move around.',
+        message: s.signalEmptyState,
       ),
     );
   }
@@ -308,7 +315,7 @@ class _InsightsScreenState extends State<InsightsScreen> with SingleTickerProvid
       emptyState: EmptyState(
         icon: Icons.history_rounded,
         title: s.noToolActivity,
-        message: 'All your diagnostic runs and network scans will be logged here.',
+        message: s.activityEmptyState,
       ),
     );
   }
@@ -377,20 +384,36 @@ class LogCard extends StatelessWidget {
       padding: EdgeInsets.zero,
       margin: const EdgeInsets.only(bottom: Spacing.md),
       onTap: () => _showLogDetails(context),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: context.netChui.accent.withValues(alpha: 0.1), shape: BoxShape.circle),
-          child: Icon(icon, color: context.netChui.accent, size: 20),
-        ),
-        title: Text(log.title ?? s.networkActivity, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
-        subtitle: Text(log.subtitle ?? '', style: TextStyle(color: context.netChui.muted, fontSize: 12)),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(DateFormat('MMM d').format(log.timestamp), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-            Text(DateFormat('HH:mm').format(log.timestamp), style: TextStyle(fontSize: 10, color: context.netChui.muted)),
+            Container(
+              width: 4,
+              decoration: BoxDecoration(
+                color: context.netChui.accent,
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(2)),
+              ),
+            ),
+            Expanded(
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: context.netChui.accent.withValues(alpha: 0.1), shape: BoxShape.circle),
+                  child: Icon(icon, color: context.netChui.accent, size: 20),
+                ),
+                title: Text(log.title ?? s.networkActivity, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: -0.3)),
+                subtitle: Text(log.subtitle ?? '', style: TextStyle(color: context.netChui.muted, fontSize: 12, fontWeight: FontWeight.w500)),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(DateFormat('MMM d').format(log.timestamp), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, fontFamily: 'JetBrainsMono')),
+                    Text(DateFormat('HH:mm').format(log.timestamp), style: TextStyle(fontSize: 10, color: context.netChui.muted, fontWeight: FontWeight.w700, fontFamily: 'JetBrainsMono')),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -407,22 +430,27 @@ class LogCard extends StatelessWidget {
   }
 }
 
-class _LogDetailModal extends StatelessWidget {
+class _LogDetailModal extends StatefulWidget {
   const _LogDetailModal({required this.log, required this.onDelete});
   final NetworkLog log;
   final VoidCallback onDelete;
 
   @override
+  State<_LogDetailModal> createState() => _LogDetailModalState();
+}
+
+class _LogDetailModalState extends State<_LogDetailModal> {
+  @override
   Widget build(BuildContext context) {
     final s = AppState.instance.strings;
     Map<String, dynamic> data = {};
-    if (log.rawData != null) {
+    if (widget.log.rawData != null) {
       try {
-        data = jsonDecode(log.rawData!);
+        data = jsonDecode(widget.log.rawData!);
       } catch (_) {}
     }
 
-    final IconData icon = switch (log.type) {
+    final IconData icon = switch (widget.log.type) {
       'DIAGNOSTICS_DNS' || 'DNS_BENCHMARK' => Icons.dns_rounded,
       'DIAGNOSTICS_PORTSCAN' => Icons.security_rounded,
       'DIAGNOSTICS_WHOIS' => Icons.info_outline_rounded,
@@ -434,7 +462,7 @@ class _LogDetailModal extends StatelessWidget {
     };
 
     return BaseModal(
-      title: log.title ?? s.logDetails,
+      title: widget.log.title ?? s.logDetails,
       icon: icon,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -443,55 +471,157 @@ class _LogDetailModal extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                DateFormat('MMMM d, yyyy - HH:mm:ss').format(log.timestamp),
+                DateFormat('MMMM d, yyyy - HH:mm:ss').format(widget.log.timestamp),
                 style: TextStyle(color: context.netChui.muted, fontSize: 13),
               ),
               IconButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  onDelete();
+                  widget.onDelete();
                 },
                 icon: Icon(Icons.delete_outline_rounded, color: context.netChui.accent),
               ),
             ],
           ),
           const SizedBox(height: 24),
-          if (log.recommendation != null) ...[
-            Text(s.recommendations.toUpperCase(),
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1.2)),
+          if (widget.log.recommendation != null) ...[
+            SectionTitle(s.recommendations),
             const SizedBox(height: 12),
             GlassCard(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.zero,
               color: AppColors.green,
               opacity: 0.1,
               borderColor: AppColors.green,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.lightbulb_outline_rounded, color: AppColors.green, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(log.recommendation!, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                ],
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      width: 4,
+                      decoration: const BoxDecoration(
+                        color: AppColors.green,
+                        borderRadius: BorderRadius.horizontal(left: Radius.circular(2)),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.lightbulb_outline_rounded, color: AppColors.green, size: 20),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                widget.log.recommendation!,
+                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, height: 1.4),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 24),
           ],
-          Text(s.technicalData.toUpperCase(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1.2)),
+          SectionTitle(s.technicalData),
           const SizedBox(height: 12),
-          GlassCard(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              const JsonEncoder.withIndent('  ').convert(data),
-              style: const TextStyle(
-                fontFamily: 'JetBrainsMono', 
-                fontSize: 12, 
-                fontWeight: FontWeight.w600,
+          if (data.isNotEmpty)
+            GlassCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                children: data.entries.map((e) {
+                  if (e.value is Map || e.value is List) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(
+                            e.key.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: context.netChui.muted,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: context.netChui.glass,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: context.netChui.border.withValues(alpha: 0.1)),
+                          ),
+                          child: Text(
+                            const JsonEncoder.withIndent('  ').convert(e.value),
+                            style: const TextStyle(
+                              fontFamily: 'JetBrainsMono',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    );
+                  }
+                  return ModalRow(label: e.key, value: e.value.toString(), isMono: true);
+                }).toList(),
+              ),
+            )
+          else
+            GlassCard(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                widget.log.rawData ?? 'No data',
+                style: const TextStyle(
+                  fontFamily: 'JetBrainsMono',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    // Copy logic
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.copy_rounded, size: 18),
+                  label: Text(s.copyResult),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () {
+                    ReportService.instance.shareDiagnosticLog(
+                      widget.log.title ?? 'Log',
+                      widget.log.type,
+                      widget.log.subtitle ?? '',
+                      data,
+                    );
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.share_rounded, size: 18),
+                  label: Text(s.share),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 }
+

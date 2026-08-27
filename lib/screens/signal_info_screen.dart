@@ -7,6 +7,7 @@ import 'package:net_chui/theme/app_theme.dart';
 import 'package:net_chui/widgets/app_header.dart';
 import 'package:net_chui/widgets/glass_card.dart';
 import 'package:net_chui/widgets/gradient_background.dart';
+import 'package:net_chui/widgets/section_title.dart';
 import 'package:net_chui/services/hardware_service.dart';
 
 class SignalInfoScreen extends StatefulWidget {
@@ -101,21 +102,21 @@ class _SignalInfoScreenState extends State<SignalInfoScreen> {
                       const SizedBox(height: Spacing.xl),
                       _buildLiveMetrics(info),
                       const SizedBox(height: Spacing.xl),
-                      _buildSectionTitle(AppState.instance.strings.signalStrengthGraph),
+                      SectionTitle(AppState.instance.strings.signalStrengthGraph),
                       _buildSignalGraph(info),
                       const SizedBox(height: Spacing.xl),
-                      _buildSectionTitle(AppState.instance.strings.networkTrafficGraph),
+                      SectionTitle(AppState.instance.strings.networkTrafficGraph),
                       _buildTrafficGraph(),
                       const SizedBox(height: Spacing.xl),
                       if (isWifi) ...[
-                        _buildSectionTitle(AppState.instance.strings.wifiDetails),
+                        SectionTitle(AppState.instance.strings.wifiDetails),
                         _buildWifiDetails(info),
                       ] else ...[
-                        _buildSectionTitle(AppState.instance.strings.cellularDetails),
+                        SectionTitle(AppState.instance.strings.cellularDetails),
                         _buildCellularDetails(info),
                       ],
                       const SizedBox(height: Spacing.xl),
-                      _buildSectionTitle(AppState.instance.strings.ipAndNetwork),
+                      SectionTitle(AppState.instance.strings.ipAndNetwork),
                       _buildNetworkInfo(info),
                     ]),
                   ),
@@ -128,98 +129,85 @@ class _SignalInfoScreenState extends State<SignalInfoScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 10, top: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: context.netChui.accent.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(3),
-            ),
-            child: Center(
-              child: Container(
-                width: 4,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: context.netChui.accent,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
-              color: context.netChui.muted,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildHeader(bool isWifi, HardwareInfo info) {
     final colors = context.netChui;
+    final iconColor = isWifi ? colors.secondary : colors.warning;
+    
     return GlassCard(
-      padding: const EdgeInsets.all(Spacing.lg),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(Spacing.md),
-            decoration: BoxDecoration(
-              color: colors.accent.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
+      padding: EdgeInsets.zero,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: 4,
+              decoration: BoxDecoration(
+                color: iconColor,
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(2)),
+              ),
             ),
-            child: Icon(
-              isWifi ? Icons.wifi_rounded : Icons.signal_cellular_alt_rounded,
-              color: colors.accent,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: Spacing.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isWifi ? (info.wifiSsid ?? 'Wi-Fi') : (info.carrierName ?? 'Mobile Data'),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.5),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  isWifi ? 'Connected via WLAN' : '${info.networkGeneration ?? 'Cellular'} Connection',
-                  style: TextStyle(color: colors.muted, fontSize: 13, fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${(isWifi ? info.rssi : info.rsrp) ?? '--'}',
-                style: TextStyle(
-                  fontSize: 24, 
-                  fontWeight: FontWeight.w900, 
-                  color: colors.accent,
-                  fontFamily: 'JetBrainsMono',
-                  letterSpacing: -1,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: Spacing.lg),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(Spacing.md),
+                      decoration: BoxDecoration(
+                        color: iconColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: iconColor.withValues(alpha: 0.15)),
+                      ),
+                      child: Icon(
+                        isWifi ? Icons.wifi_rounded : Icons.signal_cellular_alt_rounded,
+                        color: iconColor,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: Spacing.lg),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isWifi ? (info.wifiSsid ?? 'Wi-Fi') : (info.carrierName ?? 'Mobile Data'),
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, letterSpacing: -0.8),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            isWifi ? 'Connected via WLAN' : '${info.networkGeneration ?? 'Cellular'} Connection',
+                            style: TextStyle(color: colors.muted, fontSize: 13, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${(isWifi ? info.rssi : info.rsrp) ?? '--'}',
+                          style: TextStyle(
+                            fontSize: 28, 
+                            fontWeight: FontWeight.w900, 
+                            color: colors.text,
+                            fontFamily: 'JetBrainsMono',
+                            letterSpacing: -1.5,
+                          ),
+                        ),
+                        Text('dBm', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: colors.muted)),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              Text('dBm', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: colors.muted)),
-            ],
-          ),
-        ],
+            ),
+            const SizedBox(width: 16),
+          ],
+        ),
       ),
     );
   }
@@ -446,14 +434,15 @@ class _LiveMetric extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: color.withValues(alpha: 0.15)),
                 ),
-                child: Icon(icon, size: 14, color: color),
+                child: Icon(icon, size: 16, color: color),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Text(
                 label, 
                 style: TextStyle(
@@ -465,7 +454,7 @@ class _LiveMetric extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: Spacing.md),
+          const SizedBox(height: Spacing.xl),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
@@ -473,19 +462,19 @@ class _LiveMetric extends StatelessWidget {
               Text(
                 value, 
                 style: const TextStyle(
-                  fontSize: 24, 
+                  fontSize: 28, 
                   fontWeight: FontWeight.w900,
                   fontFamily: 'JetBrainsMono',
-                  letterSpacing: -1,
+                  letterSpacing: -1.5,
                 ),
               ),
               const SizedBox(width: 4),
               Text(
                 unit, 
                 style: TextStyle(
-                  fontSize: 11, 
+                  fontSize: 12, 
                   fontWeight: FontWeight.w800, 
-                  color: colors.muted.withValues(alpha: 0.6),
+                  color: colors.muted.withValues(alpha: 0.7),
                 ),
               ),
             ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:net_chui/app/app_state.dart';
+import 'package:net_chui/widgets/app_logo.dart';
 import 'package:net_chui/screens/main_shell.dart';
 import 'package:net_chui/screens/onboarding_screen.dart';
 import 'package:net_chui/theme/app_theme.dart';
@@ -119,29 +120,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: context.netChui.card,
-                            borderRadius: BorderRadius.circular(32),
-                            boxShadow: [
-                              BoxShadow(
-                                color: context.netChui.accent.withValues(alpha: 0.15),
-                                blurRadius: 40,
-                                spreadRadius: 5,
-                              ),
-                            ],
-                            border: Border.all(
-                              color: context.netChui.border,
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.speed_rounded,
-                            size: 64,
-                            color: context.netChui.accent,
-                          ),
-                        ),
+                        const AppLogo(size: 112),
                         const SizedBox(height: 32),
                         Text(
                           AppState.instance.strings.appName,

@@ -48,7 +48,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
               Text(
                 'EXPORT REPORT',
                 style: TextStyle(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w900,
                   fontSize: 12,
                   letterSpacing: 1.5,
                   color: context.netChui.muted,
@@ -201,9 +201,24 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _MainMetric(label: s.download, value: r.downloadMbps?.toStringAsFixed(1) ?? '—', unit: 'Mbps', color: context.netChui.accent),
-          _MainMetric(label: s.upload, value: r.uploadMbps?.toStringAsFixed(1) ?? '—', unit: 'Mbps', color: AppColors.purple),
-          _MainMetric(label: s.ping, value: r.pingMs?.round().toString() ?? '—', unit: 'ms', color: AppColors.blue),
+          _MainMetric(
+            label: s.download,
+            value: r.downloadMbps?.toStringAsFixed(1) ?? '—',
+            unit: 'Mbps',
+            color: context.netChui.accent,
+          ),
+          _MainMetric(
+            label: s.upload,
+            value: r.uploadMbps?.toStringAsFixed(1) ?? '—',
+            unit: 'Mbps',
+            color: AppColors.purple,
+          ),
+          _MainMetric(
+            label: s.ping,
+            value: r.pingMs?.round().toString() ?? '—',
+            unit: 'ms',
+            color: context.netChui.info,
+          ),
         ],
       ),
     );
@@ -223,7 +238,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                 height: 12,
                 decoration: BoxDecoration(
                   color: colors.accent.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(3),
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 child: Center(
                   child: Container(
@@ -240,10 +255,10 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
               Text(
                 title.toUpperCase(),
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 11,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.5,
-                  color: colors.muted,
+                  color: colors.text.withValues(alpha: 0.5),
                 ),
               ),
             ],
@@ -251,7 +266,25 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
         ),
         GlassCard(
           padding: EdgeInsets.zero,
-          child: Column(children: children),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: colors.accent,
+                    borderRadius: const BorderRadius.horizontal(left: Radius.circular(2)),
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    children: children,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -273,9 +306,9 @@ class _MainMetric extends StatelessWidget {
           label.toUpperCase(),
           style: TextStyle(
             fontSize: 10,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w900,
             color: context.netChui.muted,
-            letterSpacing: 1.0,
+            letterSpacing: 1.5,
           ),
         ),
         const SizedBox(height: 8),
@@ -285,7 +318,7 @@ class _MainMetric extends StatelessWidget {
             fontSize: 28,
             fontWeight: FontWeight.w900,
             color: color,
-            letterSpacing: -1,
+            letterSpacing: -1.5,
             fontFamily: 'JetBrainsMono',
           ),
         ),
@@ -320,7 +353,7 @@ class _DetailRow extends StatelessWidget {
             label,
             style: TextStyle(
               color: colors.muted,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontSize: 13,
             ),
           ),
@@ -330,7 +363,7 @@ class _DetailRow extends StatelessWidget {
               value,
               textAlign: TextAlign.end,
               style: TextStyle(
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
                 color: colors.text,
                 fontFamily: isMonospace ? 'JetBrainsMono' : null,
                 fontSize: 14,

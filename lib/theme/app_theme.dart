@@ -15,7 +15,7 @@ abstract final class AppColors {
   // Modern UI Colors
   static const darkBackground = Color(0xFF080809);
   static const darkSurface = Color(0xFF111114);
-  static const darkSurfaceVariant = Color(0xFF1A1A1E);
+  static const darkSurfaceVariant = Color(0xFF16161A); // Slightly lighter for contrast
   static const lightBackground = Color(0xFFF8FAFC);
   static const lightSurface = Color(0xFFFFFFFF);
   static const lightSurfaceVariant = Color(0xFFF1F5F9);
@@ -23,18 +23,22 @@ abstract final class AppColors {
   static const darkText = Color(0xFFF8FAFC);
   static const lightText = Color(0xFF0F172A);
   static const darkMuted = Color(0xFF94A3B8);
-  static const lightMuted = Color(0xFF64748B); // Increased contrast from 475569
+  static const lightMuted = Color(0xFF64748B); // Slightly darker for better light mode visibility
 
   static const accent = Color(0xFFFF3B3B);
-  static const secondary = Color(0xFF3B82F6); 
+  static const secondary = Color(0xFF3B82F6);
   static const tertiary = Color(0xFF8B5CF6);
-  static const success = Color(0xFF10B981);
+  static const success = Color(0xFF10B981); // Refined success green
   static const warning = Color(0xFFF59E0B);
   static const info = Color(0xFF0EA5E9);
 
   static const gradientPrimary = [Color(0xFFFF3B3B), Color(0xFFFF6B6B)];
   static const gradientSecondary = [Color(0xFF3B82F6), Color(0xFF60A5FA)];
   static const gradientGlass = [Color(0x1AFFFFFF), Color(0x05FFFFFF)];
+  
+  static const successGradient = [Color(0xFF22C55E), Color(0xFF4ADE80)];
+  static const warningGradient = [Color(0xFFF59E0B), Color(0xFFFBBF24)];
+  static const infoGradient = [Color(0xFF0EA5E9), Color(0xFF38BDF8)];
 }
 
 abstract final class Spacing {
@@ -108,8 +112,8 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(24),
           side: BorderSide(
             color: isDark 
-              ? Colors.white.withValues(alpha: 0.06) 
-              : Colors.black.withValues(alpha: 0.05)
+              ? Colors.white.withValues(alpha: 0.1) 
+              : Colors.black.withValues(alpha: 0.08)
           ),
         ),
       ),
@@ -192,10 +196,14 @@ abstract final class AppTheme {
           accent: accent,
           secondary: isDark ? AppColors.secondary : AppColors.secondary,
           muted: isDark ? AppColors.darkMuted : AppColors.lightMuted,
-          subtle: text.withValues(alpha: isDark ? 0.3 : 0.4),
+          subtle: text.withValues(alpha: isDark ? 0.35 : 0.45),
           card: isDark ? AppColors.darkSurfaceVariant : AppColors.lightSurface,
-          border: text.withValues(alpha: isDark ? 0.1 : 0.08),
-          glass: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.02),
+          border: text.withValues(alpha: isDark ? 0.08 : 0.06),
+          glass: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.015),
+          success: AppColors.success,
+          warning: AppColors.warning,
+          info: AppColors.info,
+          tertiary: AppColors.tertiary,
         ),
       ],
     );
@@ -214,6 +222,10 @@ class NetChuiColors extends ThemeExtension<NetChuiColors> {
     required this.card,
     required this.border,
     required this.glass,
+    required this.success,
+    required this.warning,
+    required this.info,
+    required this.tertiary,
   });
 
   final Color background;
@@ -226,6 +238,10 @@ class NetChuiColors extends ThemeExtension<NetChuiColors> {
   final Color card;
   final Color border;
   final Color glass;
+  final Color success;
+  final Color warning;
+  final Color info;
+  final Color tertiary;
 
   @override
   NetChuiColors copyWith({
@@ -239,6 +255,10 @@ class NetChuiColors extends ThemeExtension<NetChuiColors> {
     Color? card,
     Color? border,
     Color? glass,
+    Color? success,
+    Color? warning,
+    Color? info,
+    Color? tertiary,
   }) {
     return NetChuiColors(
       background: background ?? this.background,
@@ -251,6 +271,10 @@ class NetChuiColors extends ThemeExtension<NetChuiColors> {
       card: card ?? this.card,
       border: border ?? this.border,
       glass: glass ?? this.glass,
+      success: success ?? this.success,
+      warning: warning ?? this.warning,
+      info: info ?? this.info,
+      tertiary: tertiary ?? this.tertiary,
     );
   }
 
@@ -270,6 +294,10 @@ class NetChuiColors extends ThemeExtension<NetChuiColors> {
       card: Color.lerp(card, other.card, t)!,
       border: Color.lerp(border, other.border, t)!,
       glass: Color.lerp(glass, other.glass, t)!,
+      success: Color.lerp(success, other.success, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      info: Color.lerp(info, other.info, t)!,
+      tertiary: Color.lerp(tertiary, other.tertiary, t)!,
     );
   }
 }

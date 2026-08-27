@@ -48,10 +48,10 @@ class _SpeedTestScreenState extends State<SpeedTestScreen> {
 
   Color _phaseAccent(SpeedTestPhase phase, BuildContext context) {
     return switch (phase) {
-      SpeedTestPhase.ping => AppColors.blue,
+      SpeedTestPhase.ping => context.netChui.info,
       SpeedTestPhase.download => context.netChui.accent,
-      SpeedTestPhase.upload => Colors.deepPurpleAccent,
-      SpeedTestPhase.done => AppColors.green,
+      SpeedTestPhase.upload => AppColors.purple,
+      SpeedTestPhase.done => context.netChui.success,
       SpeedTestPhase.error => context.netChui.accent,
       _ => context.netChui.accent,
     };
@@ -308,7 +308,7 @@ class _SpeedTestScreenState extends State<SpeedTestScreen> {
                 value: _formatPing(_livePingMs ?? _result.pingMs),
                 unit: 'ms',
                 subtitle: pingSubtitle,
-                accent: AppColors.blue,
+                accent: context.netChui.info,
                 isActive: _phase == SpeedTestPhase.ping,
                 semanticsLabel: s.ping,
               ),
@@ -332,7 +332,7 @@ class _SpeedTestScreenState extends State<SpeedTestScreen> {
                 label: s.upload,
                 value: _formatMbps(_result.uploadMbps),
                 unit: 'Mbps',
-                accent: Colors.deepPurpleAccent,
+                accent: AppColors.purple,
                 isActive: _phase == SpeedTestPhase.upload,
                 semanticsLabel: s.upload,
               ),
@@ -393,17 +393,18 @@ class _SpeedTestScreenState extends State<SpeedTestScreen> {
     final isDone = _phase == SpeedTestPhase.done;
     return SizedBox(
       width: double.infinity,
-      height: 52,
+      height: 60,
       child: FilledButton(
         onPressed: online ? _startTest : null,
         style: FilledButton.styleFrom(
           backgroundColor: context.netChui.accent,
-          foregroundColor: colors.surface,
-          disabledBackgroundColor: colors.surface.withValues(alpha: 0.3),
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: colors.text.withValues(alpha: 0.1),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
         child: Text(
-          isDone ? s.testAgain : s.startTest,
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+          (isDone ? s.testAgain : s.startTest).toUpperCase(),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1),
         ),
       ),
     );
@@ -438,18 +439,44 @@ class _ErrorBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: context.netChui.accent.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.netChui.accent.withValues(alpha: 0.4)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: context.netChui.accent.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          Icon(Icons.error_outline, color: context.netChui.accent, size: 22),
-          const SizedBox(width: 10),
-          Expanded(child: Text(message)),
-          TextButton(onPressed: onRetry, child: Text(retryLabel)),
+          Icon(Icons.error_outline_rounded, color: context.netChui.accent, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: context.netChui.text,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          TextButton(
+            onPressed: onRetry,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              retryLabel.toUpperCase(),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                color: context.netChui.accent,
+                letterSpacing: 1.0,
+              ),
+            ),
+          ),
         ],
       ),
     );

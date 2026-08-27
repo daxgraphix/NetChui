@@ -45,9 +45,10 @@ class AppHeader extends StatelessWidget {
           title,
           style: TextStyle(
             fontWeight: FontWeight.w900,
-            fontSize: 24,
+            fontSize: 32, // Further increased size
             color: netChui.text,
-            letterSpacing: -1,
+            letterSpacing: -1.5,
+            height: 1.1,
           ),
         ),
         background: Stack(
@@ -57,30 +58,30 @@ class AppHeader extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [
-                    netChui.accent.withValues(alpha: isDark ? 0.15 : 0.08),
-                    netChui.accent.withValues(alpha: 0),
+                    netChui.accent.withValues(alpha: isDark ? 0.2 : 0.1),
+                    Colors.transparent,
                   ],
                 ),
               ),
             ),
             // Decorative orbs
             Positioned(
-              top: -50,
-              right: -50,
+              top: -60,
+              right: -60,
               child: _HeaderOrb(
-                color: netChui.accent.withValues(alpha: 0.1),
-                size: 200,
+                color: netChui.accent.withValues(alpha: isDark ? 0.15 : 0.1),
+                size: 240,
               ),
             ),
             Positioned(
-              bottom: -20,
-              left: 100,
+              top: 20,
+              left: -30,
               child: _HeaderOrb(
-                color: AppColors.blue.withValues(alpha: 0.05),
-                size: 100,
+                color: AppColors.secondary.withValues(alpha: isDark ? 0.08 : 0.05),
+                size: 140,
               ),
             ),
           ],

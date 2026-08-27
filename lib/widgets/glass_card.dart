@@ -40,6 +40,16 @@ class GlassCard extends StatelessWidget {
       width: width,
       height: height,
       margin: margin,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
         child: BackdropFilter(
@@ -53,7 +63,7 @@ class GlassCard extends StatelessWidget {
                       onTap!();
                     }
                   : null,
-            child: Container(
+              child: Container(
                 padding: padding ?? const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(borderRadius),
@@ -62,15 +72,15 @@ class GlassCard extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: [
                       isDark 
-                          ? Colors.white.withValues(alpha: 0.05) 
-                          : Colors.white.withValues(alpha: 0.4),
+                          ? Colors.white.withValues(alpha: 0.1) 
+                          : Colors.white.withValues(alpha: 0.7),
                       isDark 
-                          ? Colors.white.withValues(alpha: 0.01) 
-                          : Colors.white.withValues(alpha: 0.1),
+                          ? Colors.white.withValues(alpha: 0.03) 
+                          : Colors.white.withValues(alpha: 0.3),
                     ],
                   ),
                   border: Border.all(
-                    color: (borderColor ?? theme.border).withValues(alpha: isDark ? 0.12 : 0.1),
+                    color: (borderColor ?? theme.border).withValues(alpha: isDark ? 0.2 : 0.15),
                     width: 1.0,
                   ),
                 ),

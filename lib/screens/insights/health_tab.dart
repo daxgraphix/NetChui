@@ -3,6 +3,7 @@ import '../../services/health_analysis_service.dart';
 import '../../theme/app_theme.dart';
 import 'package:net_chui/app/app_state.dart';
 import 'package:net_chui/widgets/glass_card.dart';
+import 'package:net_chui/widgets/section_title.dart';
 import '../../models/history_entry.dart';
 
 class HealthTab extends StatelessWidget {
@@ -26,16 +27,16 @@ class HealthTab extends StatelessWidget {
       children: [
         _buildHealthHeader(context),
         const SizedBox(height: Spacing.xl),
-        _buildSectionTitle(context, s.keyMetrics),
+        SectionTitle(s.keyMetrics),
         ...analysis.metrics.map((m) => _buildMetricCard(context, m)),
         const SizedBox(height: Spacing.xl),
         if (analysis.insights.isNotEmpty) ...[
-          _buildSectionTitle(context, s.aiInsights),
+          SectionTitle(s.aiInsights),
           ...analysis.insights.map((i) => _buildInsightCard(context, i)),
         ],
         if (analysis.timeToFailure != null || analysis.optimalUsageTime != null) ...[
           const SizedBox(height: Spacing.xl),
-          _buildSectionTitle(context, 'PREDICTIVE ANALYSIS'),
+          SectionTitle('PREDICTIVE ANALYSIS'),
           if (analysis.timeToFailure != null)
             _buildInsightCard(context, analysis.timeToFailure!, icon: Icons.shutter_speed_rounded, color: AppColors.red),
           if (analysis.optimalUsageTime != null)
@@ -53,62 +54,25 @@ class HealthTab extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 10, top: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: context.netChui.accent.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(3),
-            ),
-            child: Center(
-              child: Container(
-                width: 4,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: context.netChui.accent,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            title.toUpperCase(),
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
-              color: context.netChui.muted,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildHealthHeader(BuildContext context) {
     final s = AppState.instance.strings;
     final score = analysis.overallScore;
     final color = score > 80 ? AppColors.green : (score > 50 ? Colors.orange : AppColors.red);
+    final isSmallScreen = MediaQuery.of(context).size.width < 360;
 
     return GlassCard(
-      padding: const EdgeInsets.all(Spacing.xl),
+      padding: EdgeInsets.all(isSmallScreen ? Spacing.lg : Spacing.xl),
       child: Row(
         children: [
           Stack(
             alignment: Alignment.center,
             children: [
               SizedBox(
-                width: 80,
-                height: 80,
+                width: isSmallScreen ? 64 : 80,
+                height: isSmallScreen ? 64 : 80,
                 child: CircularProgressIndicator(
                   value: score / 100,
-                  strokeWidth: 8,
+                  strokeWidth: isSmallScreen ? 6 : 8,
                   backgroundColor: color.withValues(alpha: 0.1),
                   valueColor: AlwaysStoppedAnimation<Color>(color),
                   strokeCap: StrokeCap.round,
@@ -116,23 +80,35 @@ class HealthTab extends StatelessWidget {
               ),
               Text(
                 '${score.toInt()}',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, fontFamily: 'JetBrainsMono'),
+                style: TextStyle(
+                  fontSize: isSmallScreen ? 20 : 24, 
+                  fontWeight: FontWeight.w900, 
+                  fontFamily: 'JetBrainsMono'
+                ),
               ),
             ],
           ),
-          const SizedBox(width: 24),
+          SizedBox(width: isSmallScreen ? 16 : 24),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   s.networkIs(analysis.status),
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 18 : 20, 
+                    fontWeight: FontWeight.w800,
+                    height: 1.2,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   s.basedOnActivity7Days,
-                  style: TextStyle(color: context.netChui.muted, fontSize: 13),
+                  style: TextStyle(
+                    color: context.netChui.muted, 
+                    fontSize: isSmallScreen ? 12 : 13,
+                  ),
                 ),
               ],
             ),
@@ -143,38 +119,67 @@ class HealthTab extends StatelessWidget {
   }
 
   Widget _buildMetricCard(BuildContext context, HealthMetric metric) {
+    final color = metric.score > 0.8 ? AppColors.green : (metric.score > 0.5 ? Colors.orange : AppColors.red);
     return GlassCard(
       margin: const EdgeInsets.only(bottom: Spacing.md),
-      padding: const EdgeInsets.all(Spacing.lg),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 32,
-            decoration: BoxDecoration(
-              color: metric.score > 0.8 ? AppColors.green : (metric.score > 0.5 ? Colors.orange : AppColors.red),
-              borderRadius: BorderRadius.circular(2),
+      padding: EdgeInsets.zero,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: 4,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(2)),
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(metric.label.toUpperCase(), style: TextStyle(fontSize: 9, color: context.netChui.muted, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
-                const SizedBox(height: 4),
-                Text(
-                  metric.value, 
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, fontFamily: 'JetBrainsMono'),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(Spacing.lg),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            metric.label.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: context.netChui.muted,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            metric.value,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'JetBrainsMono',
+                              letterSpacing: -0.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    if (metric.isImproving)
+                      const Icon(Icons.trending_up_rounded, color: AppColors.green, size: 20)
+                    else
+                      const Icon(Icons.trending_down_rounded, color: AppColors.red, size: 20),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-          if (metric.isImproving)
-            const Icon(Icons.trending_up_rounded, color: AppColors.green, size: 20)
-          else
-            const Icon(Icons.trending_down_rounded, color: AppColors.red, size: 20),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -182,25 +187,48 @@ class HealthTab extends StatelessWidget {
   Widget _buildInsightCard(BuildContext context, String insight, {IconData? icon, Color? color}) {
     final finalIcon = icon ?? Icons.auto_awesome_rounded;
     final finalColor = color ?? AppColors.blue;
-    
+
     return GlassCard(
       margin: const EdgeInsets.only(bottom: Spacing.md),
-      padding: const EdgeInsets.all(Spacing.lg),
+      padding: EdgeInsets.zero,
       color: finalColor,
       opacity: 0.05,
       borderColor: finalColor,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(finalIcon, color: finalColor, size: 20),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              insight,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, height: 1.4),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: 4,
+              decoration: BoxDecoration(
+                color: finalColor,
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(2)),
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(Spacing.lg),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(finalIcon, color: finalColor, size: 20),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        insight,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

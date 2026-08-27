@@ -15,8 +15,10 @@ import 'package:net_chui/services/notification_service.dart';
 import 'package:net_chui/services/storage_service.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-class AppState extends ChangeNotifier {
-  AppState._(this._storage, this._connectivity, this._hardware);
+class AppState extends ChangeNotifier with WidgetsBindingObserver {
+  AppState._(this._storage, this._connectivity, this._hardware) {
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   static AppState get instance => _instance!;
   static final StorageService _storageInstance = StorageService.instance;
@@ -42,6 +44,7 @@ class AppState extends ChangeNotifier {
   double? lastDnsLatency;
   Timer? _scanTimer;
   StreamSubscription? _connectivitySub;
+  AppLifecycleState _lifecycleState = AppLifecycleState.resumed;
 
   Future<void> init() async {
     settings = _storage.loadSettings();
@@ -51,7 +54,7 @@ class AppState extends ChangeNotifier {
     
     _connectivitySub = _connectivity.onConnectivityChanged.listen((_) {
       _refreshConnectivity();
-      refreshHardwareInfo();
+      refreshHardwareInfo(forceRefresh: true);
     });
 
     if (settings.dailyReminderEnabled) {
@@ -59,21 +62,67 @@ class AppState extends ChangeNotifier {
     }
 
     _startSignalScanning();
+    _pruneOldLogs();
   }
 
-  Future<void> _startSignalScanning() async {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _lifecycleState = state;
+    if (state == AppLifecycleState.resumed) {
+      // Resume frequent scanning when app comes to foreground
+      _startSignalScanning();
+      _refreshConnectivity();
+      refreshHardwareInfo(forceRefresh: true);
+    } else if (state == AppLifecycleState.paused) {
+      // Slow down or stop scanning when in background to save battery
+      _startSignalScanning(isBackground: true);
+    }
+  }
+
+  Future<void> _startSignalScanning({bool isBackground = false}) async {
     _scanTimer?.cancel();
-    _scanTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+    
+    // Performance Optimization: 
+    // Foreground: 2 seconds
+    // Background: 60 seconds (or stopped if battery is a major concern)
+    final interval = isBackground ? const Duration(minutes: 1) : const Duration(seconds: 2);
+
+    _scanTimer = Timer.periodic(interval, (timer) async {
+      // Don't scan if we're in a terminal state
+      if (_lifecycleState == AppLifecycleState.detached) return;
+
       double dbm;
       try {
-        // Optimization: Fetch only dynamic info (RSSI, etc) during background scanning
-        final info = await _hardware.getHardwareInfo(dynamicOnly: true);
-        hardwareInfo = info;
+        final rssi = await _hardware.getSignalStrength();
         
-        if (info.rssi != null) {
-          dbm = info.rssi!.toDouble();
+        if (rssi != null) {
+          dbm = rssi.toDouble();
+          // Update hardware info with new RSSI
+          hardwareInfo = HardwareInfo(
+            model: hardwareInfo.model,
+            brand: hardwareInfo.brand,
+            osVersion: hardwareInfo.osVersion,
+            sdkVersion: hardwareInfo.sdkVersion,
+            carrierName: hardwareInfo.carrierName,
+            networkGeneration: hardwareInfo.networkGeneration,
+            wifiSsid: hardwareInfo.wifiSsid,
+            wifiBssid: hardwareInfo.wifiBssid,
+            rssi: rssi,
+            ipAddress: hardwareInfo.ipAddress,
+            frequency: hardwareInfo.frequency,
+            linkSpeed: hardwareInfo.linkSpeed,
+            wifiStandard: hardwareInfo.wifiStandard,
+            gateway: hardwareInfo.gateway,
+            netmask: hardwareInfo.netmask,
+            publicIp: hardwareInfo.publicIp,
+            dnsServers: hardwareInfo.dnsServers,
+            channel: hardwareInfo.channel,
+            simState: hardwareInfo.simState,
+            dataType: hardwareInfo.dataType,
+            rttSupported: hardwareInfo.rttSupported,
+            rsrp: hardwareInfo.rsrp,
+          );
         } else {
-          // Default/Placeholder if signal can't be read
           dbm = -60.0; 
         }
       } catch (e) {
@@ -85,8 +134,12 @@ class AppState extends ChangeNotifier {
       }
       signalHistory.add(FlSpot(timer.tick.toDouble(), dbm));
 
-      // Save to database every 30 seconds for trend analysis
-      if (timer.tick % 15 == 0) {
+      // Save to database
+      // Foreground: every 30 seconds (15 ticks of 2s)
+      // Background: every minute (1 tick of 1m)
+      bool shouldLog = isBackground || (timer.tick % 15 == 0);
+      
+      if (shouldLog) {
         await _storage.saveNetworkLog(NetworkLog()
           ..timestamp = DateTime.now()
           ..type = 'SIGNAL'
@@ -101,8 +154,13 @@ class AppState extends ChangeNotifier {
     });
   }
 
-  Future<void> refreshHardwareInfo() async {
-    hardwareInfo = await _hardware.getHardwareInfo();
+  Future<void> _pruneOldLogs() async {
+    // Keep logs for 30 days to ensure data accuracy for insights while maintaining performance
+    await _storage.pruneLogs(daysToKeep: 30);
+  }
+
+  Future<void> refreshHardwareInfo({bool forceRefresh = false}) async {
+    hardwareInfo = await _hardware.getHardwareInfo(forceRefresh: forceRefresh);
     notifyListeners();
   }
 
@@ -172,6 +230,22 @@ class AppState extends ChangeNotifier {
         score -= 10;
       }
     }
+
+    // New: WiFi Frequency & Link Speed Impact
+    if (connectionLabel.contains('Wi‑Fi')) {
+      if (hardwareInfo.frequency != null) {
+        // 2.4GHz is more prone to interference
+        if (hardwareInfo.frequency! < 3000) {
+          score -= 10;
+        }
+      }
+      if (hardwareInfo.linkSpeed != null && hardwareInfo.linkSpeed! < 50) {
+        score -= 15;
+      }
+    }
+
+    // New: Battery/Hardware state (simulated or simplified)
+    // We could add thermal throttling detection if we had a plugin for it.
 
     return score.clamp(0, 100).toInt();
   }
@@ -374,6 +448,8 @@ class AppState extends ChangeNotifier {
   }
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _scanTimer?.cancel();
     _connectivitySub?.cancel();
     super.dispose();
   }

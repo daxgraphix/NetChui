@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:net_chui/app/app_state.dart';
 import 'package:net_chui/screens/main_shell.dart';
+import 'package:net_chui/widgets/app_logo.dart';
 import 'package:net_chui/services/haptic_service.dart';
 import 'package:net_chui/theme/app_theme.dart';
 
@@ -70,7 +71,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       // Logo/Name in corner
                       Row(
                         children: [
-                          Icon(Icons.speed_rounded, color: context.netChui.accent, size: 20),
+                          const AppLogo(size: 24, showBackground: false),
                           const SizedBox(width: 8),
                           Text(
                             s.appName,

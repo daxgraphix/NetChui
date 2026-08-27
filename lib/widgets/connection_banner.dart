@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:net_chui/widgets/glass_card.dart';
 import 'package:net_chui/theme/app_theme.dart';
@@ -25,13 +26,13 @@ class ConnectionBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.netChui;
-    final color = isOnline ? AppColors.red : colors.muted;
+    final color = isOnline ? colors.accent : colors.muted;
 
     return Semantics(
       label: 'Network status: ${isOnline ? 'Connected' : 'Disconnected'} to ${isp ?? label}. Health score: ${healthScore ?? 'N/A'}',
       child: GlassCard(
         onTap: onTap,
-        padding: const EdgeInsets.all(Spacing.md),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
             _buildLeadingIndicator(context, isOnline, color, healthScore),
@@ -47,11 +48,10 @@ class ConnectionBanner extends StatelessWidget {
                           (isp ?? label).toUpperCase(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12,
+                          style: const TextStyle(
+                            fontSize: 13,
                             fontWeight: FontWeight.w900,
-                            color: colors.text,
-                            letterSpacing: 0.5,
+                            letterSpacing: -0.2,
                           ),
                         ),
                       ),
@@ -59,20 +59,28 @@ class ConnectionBanner extends StatelessWidget {
                       _StatusBadge(isOnline: isOnline),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     [ip, location].whereType<String>().join(' • '),
                     style: TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       color: colors.muted,
+                      letterSpacing: 0.2,
                     ),
                   ),
                 ],
               ),
             ),
             if (isOnline)
-              Icon(Icons.chevron_right_rounded, color: colors.text.withValues(alpha: 0.4), size: 20),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: colors.border.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.chevron_right_rounded, color: colors.muted, size: 18),
+              ),
           ],
         ),
       ),
@@ -81,38 +89,54 @@ class ConnectionBanner extends StatelessWidget {
 
   Widget _buildLeadingIndicator(BuildContext context, bool isOnline, Color color, int? healthScore) {
     final colors = context.netChui;
+
     if (!isOnline) {
       return Container(
-        padding: const EdgeInsets.all(12),
+        width: 48,
+        height: 48,
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           shape: BoxShape.circle,
+          border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
         ),
-        child: Icon(Icons.wifi_off_rounded, color: color, size: 20),
+        child: Icon(Icons.wifi_off_rounded, color: color, size: 22),
       );
     }
 
     // Circular Health Indicator
+    final score = healthScore ?? 0;
+    final scoreColor = score > 80 ? colors.success : (score > 50 ? colors.info : colors.warning);
+
     return SizedBox(
-      width: 44,
-      height: 44,
+      width: 48,
+      height: 48,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          CircularProgressIndicator(
-            value: (healthScore ?? 0) / 100,
-            strokeWidth: 3,
-            backgroundColor: color.withValues(alpha: 0.1),
-            valueColor: AlwaysStoppedAnimation<Color>(
-              healthScore != null && healthScore < 50 ? AppColors.orange : color,
+          ShaderMask(
+            shaderCallback: (rect) {
+              return SweepGradient(
+                startAngle: 0,
+                endAngle: math.pi * 2,
+                stops: const [0, 0.9],
+                center: Alignment.center,
+                colors: [scoreColor, scoreColor.withValues(alpha: 0.1)],
+              ).createShader(rect);
+            },
+            child: CircularProgressIndicator(
+              value: score / 100,
+              strokeWidth: 4,
+              strokeCap: StrokeCap.round,
+              backgroundColor: colors.border.withValues(alpha: 0.1),
+              valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
             ),
           ),
           Text(
-            '${healthScore ?? 0}',
-            style: TextStyle(
-              fontSize: 12,
+            '$score',
+            style: const TextStyle(
+              fontSize: 13,
               fontWeight: FontWeight.w900,
-              color: colors.text,
+              fontFamily: 'JetBrainsMono',
             ),
           ),
         ],
@@ -127,35 +151,23 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isOnline ? AppColors.green : AppColors.red;
+    final colors = context.netChui;
+    final color = isOnline ? colors.success : colors.accent;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.1), width: 1),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            isOnline ? 'ONLINE' : 'OFFLINE',
-            style: TextStyle(
-              fontSize: 8,
-              fontWeight: FontWeight.w900,
-              color: color,
-            ),
-          ),
-        ],
+      child: Text(
+        isOnline ? 'ONLINE' : 'OFFLINE',
+        style: TextStyle(
+          fontSize: 8,
+          fontWeight: FontWeight.w900,
+          color: color,
+          letterSpacing: 0.8,
+        ),
       ),
     );
   }

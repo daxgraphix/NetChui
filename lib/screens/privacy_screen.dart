@@ -48,10 +48,11 @@ class PrivacyScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 24),
                             Text(
-                              s.privacyPolicy,
+                              s.privacyPolicy.toUpperCase(),
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -1.0,
                                   ),
                             ),
                             const SizedBox(height: 32),
@@ -82,10 +83,14 @@ class PrivacyScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: context.netChui.accent.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: context.netChui.accent.withValues(alpha: 0.1),
+                width: 1,
+              ),
             ),
             child: Icon(Icons.check_rounded, size: 14, color: context.netChui.accent),
           ),
@@ -94,10 +99,10 @@ class PrivacyScreen extends StatelessWidget {
             child: Text(
               text,
               style: context.netChuiText.bodyLarge?.copyWith(
-                height: 1.5,
+                height: 1.6,
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
-                color: context.netChui.text.withValues(alpha: 0.9),
+                color: context.netChui.text.withValues(alpha: 0.8),
               ),
             ),
           ),

@@ -5,6 +5,7 @@ import '../../models/network_log.dart';
 import '../../theme/app_theme.dart';
 import 'package:net_chui/app/app_state.dart';
 import 'package:net_chui/widgets/glass_card.dart';
+import 'package:net_chui/widgets/section_title.dart';
 
 class SignalTrendTab extends StatelessWidget {
   final bool isLoading;
@@ -32,27 +33,12 @@ class SignalTrendTab extends StatelessWidget {
         children: [
           _buildSummaryCard(context),
           const SizedBox(height: Spacing.xl),
-          _buildSectionTitle(context, s.weeklyStability),
+          SectionTitle(s.weeklyStability),
           _buildTrendChart(context),
           const SizedBox(height: Spacing.xl),
-          _buildSectionTitle(context, 'RECENT SIGNAL READINGS'),
+          SectionTitle('RECENT SIGNAL READINGS'),
           _buildSignalList(context),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 12),
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 1.2,
-          color: context.netChui.text.withValues(alpha: 0.4),
-        ),
       ),
     );
   }
@@ -68,9 +54,9 @@ class SignalTrendTab extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _Stat(label: s.average, value: '${avg.toInt()} dBm'),
-          _Stat(label: s.lowest, value: '${min.toInt()} dBm'),
-          _Stat(label: s.highest, value: '${max.toInt()} dBm'),
+          _Stat(label: s.average, value: '${avg.toInt()} dBm', color: context.netChui.info),
+          _Stat(label: s.lowest, value: '${min.toInt()} dBm', color: context.netChui.accent),
+          _Stat(label: s.highest, value: '${max.toInt()} dBm', color: AppColors.green),
         ],
       ),
     );
@@ -167,39 +153,68 @@ class SignalTrendTab extends StatelessWidget {
     final count = signalHistory.length > 20 ? 20 : signalHistory.length;
     return GlassCard(
       padding: EdgeInsets.zero,
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: count,
-        separatorBuilder: (context, index) => Divider(height: 1, color: context.netChui.border.withValues(alpha: 0.1), indent: 48),
-        itemBuilder: (context, i) {
-          final log = signalHistory[signalHistory.length - 1 - i];
-          final dbm = log.signalDbm?.toInt() ?? -100;
-          return ListTile(
-            dense: true,
-            leading: Container(
-              width: 32,
-              height: 32,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: 4,
               decoration: BoxDecoration(
-                color: _getSignalColor(context, dbm).withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+                color: context.netChui.accent,
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(2)),
               ),
-              child: Icon(Icons.circle, color: _getSignalColor(context, dbm), size: 10),
             ),
-            title: Text(
-              '$dbm dBm', 
-              style: const TextStyle(fontWeight: FontWeight.w800, fontFamily: 'JetBrainsMono'),
+            Expanded(
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: count,
+                separatorBuilder: (context, index) => Divider(
+                  height: 1,
+                  color: context.netChui.border.withValues(alpha: 0.1),
+                  indent: 48,
+                ),
+                itemBuilder: (context, i) {
+                  final log = signalHistory[signalHistory.length - 1 - i];
+                  final dbm = log.signalDbm?.toInt() ?? -100;
+                  return ListTile(
+                    dense: true,
+                    leading: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: _getSignalColor(context, dbm).withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.circle, color: _getSignalColor(context, dbm), size: 10),
+                    ),
+                    title: Text(
+                      '$dbm dBm',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'JetBrainsMono',
+                        fontSize: 15,
+                      ),
+                    ),
+                    subtitle: Text(
+                      log.subtitle ?? 'Unknown Network',
+                      style: TextStyle(fontSize: 12, color: context.netChui.muted, fontWeight: FontWeight.w500),
+                    ),
+                    trailing: Text(
+                      DateFormat('HH:mm').format(log.timestamp),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: context.netChui.subtle,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'JetBrainsMono',
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-            subtitle: Text(
-              log.subtitle ?? 'Unknown Network',
-              style: TextStyle(fontSize: 12, color: context.netChui.muted),
-            ),
-            trailing: Text(
-              DateFormat('HH:mm').format(log.timestamp),
-              style: TextStyle(fontSize: 11, color: context.netChui.subtle, fontWeight: FontWeight.w600),
-            ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
@@ -212,17 +227,35 @@ class SignalTrendTab extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.label, required this.value});
+  const _Stat({required this.label, required this.value, this.color});
   final String label;
   final String value;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label.toUpperCase(), style: TextStyle(fontSize: 9, color: context.netChui.muted, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, fontFamily: 'JetBrainsMono')),
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            fontSize: 10,
+            color: context.netChui.muted,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            fontFamily: 'JetBrainsMono',
+            color: color ?? context.netChui.text,
+            letterSpacing: -1.0,
+          ),
+        ),
       ],
     );
   }

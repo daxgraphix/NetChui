@@ -5,6 +5,7 @@ import '../../models/history_entry.dart';
 import '../../theme/app_theme.dart';
 import 'package:net_chui/app/app_state.dart';
 import 'package:net_chui/widgets/glass_card.dart';
+import 'package:net_chui/widgets/section_title.dart';
 
 class PerformanceTab extends StatelessWidget {
   final bool isLoading;
@@ -32,27 +33,12 @@ class PerformanceTab extends StatelessWidget {
         children: [
           _buildPerformanceSummary(context),
           const SizedBox(height: Spacing.xl),
-          _buildSectionTitle(context, s.downloadSpeedTrend),
+          SectionTitle(s.downloadSpeedTrend),
           _buildSpeedChart(context, isDownload: true),
           const SizedBox(height: Spacing.xl),
-          _buildSectionTitle(context, s.uploadSpeedTrend),
+          SectionTitle(s.uploadSpeedTrend),
           _buildSpeedChart(context, isDownload: false),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 12),
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 1.2,
-          color: context.netChui.text.withValues(alpha: 0.4),
-        ),
       ),
     );
   }
@@ -68,8 +54,8 @@ class PerformanceTab extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _Stat(label: s.avgDownload, value: '${avgDown.toStringAsFixed(1)} Mbps'),
-          _Stat(label: s.peakSpeed, value: '${maxDown.toStringAsFixed(1)} Mbps'),
+          _Stat(label: s.avgDownload, value: '${avgDown.toStringAsFixed(1)} Mbps', color: context.netChui.accent),
+          _Stat(label: s.peakSpeed, value: '${maxDown.toStringAsFixed(1)} Mbps', color: AppColors.purple),
         ],
       ),
     );
@@ -168,17 +154,35 @@ class PerformanceTab extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.label, required this.value});
+  const _Stat({required this.label, required this.value, this.color});
   final String label;
   final String value;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label.toUpperCase(), style: TextStyle(fontSize: 9, color: context.netChui.muted, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, fontFamily: 'JetBrainsMono')),
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            fontSize: 10,
+            color: context.netChui.muted,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            fontFamily: 'JetBrainsMono',
+            color: color ?? context.netChui.text,
+            letterSpacing: -1.0,
+          ),
+        ),
       ],
     );
   }

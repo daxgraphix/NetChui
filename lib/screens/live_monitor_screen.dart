@@ -96,6 +96,37 @@ class _LiveMonitorScreenState extends State<LiveMonitorScreen> {
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
       child: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: AppColors.success,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.success.withValues(alpha: 0.4),
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'LIVE MONITORING',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2,
+                  color: theme.muted,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
           _StatItem(
             label: s.latency.toUpperCase(),
             value: _currentStats?.pingMs.toInt().toString() ?? '--',
@@ -103,7 +134,7 @@ class _LiveMonitorScreenState extends State<LiveMonitorScreen> {
             color: _getPingColor(_currentStats?.pingMs ?? 0, theme),
             icon: Icons.speed_rounded,
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Container(
             height: 1,
             width: double.infinity,
@@ -111,40 +142,44 @@ class _LiveMonitorScreenState extends State<LiveMonitorScreen> {
               gradient: LinearGradient(
                 colors: [
                   theme.text.withValues(alpha: 0),
-                  theme.text.withValues(alpha: 0.08),
+                  theme.text.withValues(alpha: 0.1),
                   theme.text.withValues(alpha: 0),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: _StatItem(
-                  label: s.jitter.toUpperCase(),
-                  value: _currentStats?.jitterMs.toStringAsFixed(1) ?? '--',
-                  unit: 'ms',
-                  small: true,
-                  icon: Icons.insights_rounded,
+          const SizedBox(height: 32),
+          IntrinsicHeight(
+            child: Row(
+              children: [
+                Expanded(
+                  child: _StatItem(
+                    label: s.jitter.toUpperCase(),
+                    value: _currentStats?.jitterMs.toStringAsFixed(1) ?? '--',
+                    unit: 'ms',
+                    small: true,
+                    icon: Icons.insights_rounded,
+                  ),
                 ),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: theme.text.withValues(alpha: 0.08),
-              ),
-              Expanded(
-                child: _StatItem(
-                  label: s.loss.toUpperCase(),
-                  value: _currentStats?.packetLossPercent.toStringAsFixed(1) ?? '--',
-                  unit: '%',
-                  small: true,
-                  icon: Icons.layers_clear_rounded,
-                  color: (_currentStats?.packetLossPercent ?? 0) > 0 ? AppColors.warning : null,
+                VerticalDivider(
+                  color: theme.border,
+                  thickness: 1,
+                  width: 32,
+                  indent: 10,
+                  endIndent: 10,
                 ),
-              ),
-            ],
+                Expanded(
+                  child: _StatItem(
+                    label: s.loss.toUpperCase(),
+                    value: _currentStats?.packetLossPercent.toStringAsFixed(1) ?? '--',
+                    unit: '%',
+                    small: true,
+                    icon: Icons.layers_clear_rounded,
+                    color: (_currentStats?.packetLossPercent ?? 0) > 0 ? theme.warning : null,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -197,6 +232,24 @@ class _LiveMonitorScreenState extends State<LiveMonitorScreen> {
           padding: const EdgeInsets.fromLTRB(10, 24, 20, 10),
           child: LineChart(
             LineChartData(
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipColor: (spot) => theme.accent,
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((spot) {
+                      return LineTooltipItem(
+                        '${spot.y.toInt()} ms',
+                        const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      );
+                    }).toList();
+                  },
+                ),
+                handleBuiltInTouches: true,
+              ),
               gridData: FlGridData(
                 show: true,
                 drawVerticalLine: false,
@@ -265,21 +318,21 @@ class _LiveMonitorScreenState extends State<LiveMonitorScreen> {
         children: [
           _InfoRow(
             label: s.targetHost,
-            value: '8.8.8.8 (Google DNS)',
+            value: '8.8.8.8',
             theme: theme,
-            icon: Icons.dns_outlined,
+            icon: Icons.dns_rounded,
           ),
           _InfoRow(
             label: s.ipAddress,
             value: info.ipAddress ?? 'Unknown',
             theme: theme,
-            icon: Icons.router_outlined,
+            icon: Icons.router_rounded,
           ),
           _InfoRow(
             label: s.connection,
             value: AppState.instance.connectionLabel,
             theme: theme,
-            icon: Icons.wifi_rounded,
+            icon: Icons.wifi_tethering_rounded,
           ),
         ],
       ),
@@ -314,6 +367,9 @@ class _StatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.netChui;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final scale = screenWidth < 360 ? 0.8 : 1.0;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -321,46 +377,53 @@ class _StatItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: small ? 12 : 14, color: theme.muted),
+              Icon(icon, size: (small ? 12 : 14) * scale, color: theme.muted),
               const SizedBox(width: 6),
             ],
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: small ? 10 : 12,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.5,
-                color: theme.muted,
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: (small ? 10 : 12) * scale,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.5,
+                  color: theme.muted,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: small ? 28 : 64,
-                fontWeight: FontWeight.w900,
-                color: color ?? theme.text,
-                fontFamily: 'JetBrainsMono',
-                letterSpacing: -2,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: (small ? 28 : 64) * scale,
+                  fontWeight: FontWeight.w900,
+                  color: color ?? theme.text,
+                  fontFamily: 'JetBrainsMono',
+                  letterSpacing: -2,
+                ),
               ),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              unit,
-              style: TextStyle(
-                fontSize: small ? 12 : 16,
-                fontWeight: FontWeight.w700,
-                color: theme.muted.withValues(alpha: 0.6),
+              const SizedBox(width: 4),
+              Text(
+                unit,
+                style: TextStyle(
+                  fontSize: (small ? 12 : 16) * scale,
+                  fontWeight: FontWeight.w700,
+                  color: theme.muted.withValues(alpha: 0.6),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -384,15 +447,31 @@ class _InfoRow extends StatelessWidget {
             Icon(icon, size: 18, color: theme.muted),
             const SizedBox(width: 12),
           ],
-          Text(label, style: TextStyle(color: theme.muted, fontSize: 13, fontWeight: FontWeight.w500)),
+          Flexible(
+            child: Text(
+              label, 
+              style: TextStyle(
+                color: theme.muted, 
+                fontSize: 13, 
+                fontWeight: FontWeight.w500
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
           const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              color: theme.text,
-              fontWeight: FontWeight.w700,
-              fontFamily: 'JetBrainsMono',
-              fontSize: 14,
+          Flexible(
+            flex: 2,
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                color: theme.text,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'JetBrainsMono',
+                fontSize: 14,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

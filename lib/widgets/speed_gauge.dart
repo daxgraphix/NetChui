@@ -251,18 +251,19 @@ class _GaugePainter extends CustomPainter {
 
     final arcSweep = sweepAngle * progress;
     if (arcSweep > 0.001) {
+      final progressRect = Rect.fromCircle(center: center, radius: radius);
       final progressPaint = Paint()
         ..shader = SweepGradient(
           colors: [accent.withValues(alpha: 0.1), accent, accent],
           stops: const [0.0, 0.8, 1.0],
           transform: GradientRotation(startAngle),
-        ).createShader(Rect.fromCircle(center: center, radius: radius))
+        ).createShader(progressRect)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 20
         ..strokeCap = StrokeCap.round;
 
       canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
+        progressRect,
         startAngle,
         arcSweep,
         false,
@@ -271,18 +272,26 @@ class _GaugePainter extends CustomPainter {
 
       // Value pointer
       final pointerAngle = startAngle + arcSweep;
-      final pointerPaint = Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.fill
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 2); // Simple glow instead of setShadowLayer
+      final pointerPos = Offset(
+        center.dx + radius * math.cos(pointerAngle),
+        center.dy + radius * math.sin(pointerAngle),
+      );
+
+      // Simple glow effect for pointer
+      canvas.drawCircle(
+        pointerPos,
+        10,
+        Paint()
+          ..color = accent.withValues(alpha: 0.3)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+      );
 
       canvas.drawCircle(
-        Offset(
-          center.dx + radius * math.cos(pointerAngle),
-          center.dy + radius * math.sin(pointerAngle),
-        ),
+        pointerPos,
         6,
-        pointerPaint,
+        Paint()
+          ..color = Colors.white
+          ..style = PaintingStyle.fill,
       );
 
       if (isRunning) {
@@ -294,7 +303,7 @@ class _GaugePainter extends CustomPainter {
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15);
 
         canvas.drawArc(
-          Rect.fromCircle(center: center, radius: radius),
+          progressRect,
           startAngle,
           arcSweep,
           false,
@@ -305,5 +314,10 @@ class _GaugePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _GaugePainter oldDelegate) => true;
+  bool shouldRepaint(covariant _GaugePainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.isRunning != isRunning ||
+        oldDelegate.accent != accent ||
+        oldDelegate.text != text;
+  }
 }

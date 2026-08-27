@@ -65,8 +65,37 @@ class HardwareService {
   final _networkInfo = NetworkInfo();
   final _deviceInfo = DeviceInfoPlugin();
   HardwareInfo? _cachedStaticInfo;
+  String? _cachedPublicIp;
+  DateTime? _lastPublicIpFetch;
 
-  Future<HardwareInfo> getHardwareInfo({bool dynamicOnly = false}) async {
+  /// Returns basic signal information quickly, suitable for frequent polling.
+  Future<int?> getSignalStrength() async {
+    try {
+      if (await Permission.location.isGranted) {
+        final ssid = await _networkInfo.getWifiName();
+        if (ssid != null) {
+          final cleanSsid = ssid.replaceAll('"', '');
+          final results = await WiFiScan.instance.getScannedResults();
+          final currentAp = results.where((ap) => ap.ssid == cleanSsid).firstOrNull;
+          return currentAp?.level;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching signal strength: $e');
+    }
+    return null;
+  }
+
+  /// Clears cached network information, forcing a fresh fetch on next call.
+  void clearCache() {
+    _cachedPublicIp = null;
+    _lastPublicIpFetch = null;
+  }
+
+  Future<HardwareInfo> getHardwareInfo({bool dynamicOnly = false, bool forceRefresh = false}) async {
+    if (forceRefresh) {
+      clearCache();
+    }
     String? carrier;
     String? radioType;
     String? ssid;
@@ -164,13 +193,20 @@ class HardwareService {
         if (ipv6 != null) dnsServers = [ipv6];
       } catch (_) {}
       
-      // Public IP fetch
-      try {
-        final response = await http.get(Uri.parse('https://api.ipify.org')).timeout(const Duration(seconds: 2));
-        if (response.statusCode == 200) {
-          publicIp = response.body;
-        }
-      } catch (_) {}
+      // Public IP fetch - Optimized to cache for 5 minutes
+      final now = DateTime.now();
+      if (_cachedPublicIp == null || 
+          _lastPublicIpFetch == null || 
+          now.difference(_lastPublicIpFetch!).inMinutes > 5) {
+        try {
+          final response = await http.get(Uri.parse('https://api.ipify.org')).timeout(const Duration(seconds: 2));
+          if (response.statusCode == 200) {
+            _cachedPublicIp = response.body;
+            _lastPublicIpFetch = now;
+          }
+        } catch (_) {}
+      }
+      publicIp = _cachedPublicIp;
 
       if (await Permission.location.isGranted) {
         final results = await WiFiScan.instance.getScannedResults();

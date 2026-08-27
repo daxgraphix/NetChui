@@ -1,4 +1,5 @@
 import 'package:net_chui/widgets/app_header.dart';
+import 'package:net_chui/widgets/app_logo.dart';
 import 'package:net_chui/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
@@ -67,7 +68,7 @@ class _LanScannerScreenState extends State<LanScannerScreen> {
       onError: (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Scan error: $e')),
+          SnackBar(content: Text(AppState.instance.strings.scanError(e.toString()))),
         );
       },
       onDone: () async {
@@ -114,30 +115,9 @@ class _LanScannerScreenState extends State<LanScannerScreen> {
                       onTap: _startScan,
                       child: Hero(
                         tag: 'app_logo',
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: (_isScanning ? context.netChui.accent : context.netChui.border).withValues(alpha: 0.5),
-                              width: 3,
-                            ),
-                            boxShadow: [
-                              if (_isScanning)
-                                BoxShadow(
-                                  color: context.netChui.accent.withValues(alpha: 0.2),
-                                  blurRadius: 20,
-                                  spreadRadius: 5,
-                                ),
-                            ],
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/tiger.jpg',
-                              fit: BoxFit.cover,
-                            ),
-                          ),
+                        child: AppLogo(
+                          size: 80,
+                          showBackground: true,
                         ),
                       ),
                     ),
@@ -161,12 +141,13 @@ class _LanScannerScreenState extends State<LanScannerScreen> {
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(Spacing.sm),
+                          padding: const EdgeInsets.all(Spacing.md),
                           decoration: BoxDecoration(
-                            color: context.netChui.accent.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
+                            color: context.netChui.accent.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: context.netChui.accent.withValues(alpha: 0.2)),
                           ),
-                          child: Icon(Icons.devices_rounded, color: context.netChui.accent, size: 20),
+                          child: Icon(Icons.devices_rounded, color: context.netChui.accent, size: 24),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -182,32 +163,43 @@ class _LanScannerScreenState extends State<LanScannerScreen> {
                                   color: context.netChui.muted,
                                 ),
                               ),
+                              const SizedBox(height: 2),
                               Text(
                                 '${_devices.length} ${AppState.instance.strings.active}',
                                 style: const TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 22,
                                   fontWeight: FontWeight.w900,
-                                  letterSpacing: -0.5,
+                                  letterSpacing: -0.8,
                                 ),
                               ),
                             ],
                           ),
                         ),
                         if (!_isScanning)
-                          IconButton(
-                            onPressed: _startScan,
-                            icon: const Icon(Icons.refresh_rounded, size: 20),
-                            style: IconButton.styleFrom(
-                              backgroundColor: context.netChui.accent.withValues(alpha: 0.1),
-                              foregroundColor: context.netChui.accent,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: _startScan,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: context.netChui.accent.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(Icons.refresh_rounded, size: 20, color: context.netChui.accent),
+                              ),
                             ),
                           )
                         else
                           SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2.5, color: context.netChui.accent),
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3, 
+                              color: context.netChui.accent,
+                              strokeCap: StrokeCap.round,
+                            ),
                           ),
                       ],
                     ),
@@ -287,6 +279,7 @@ class _LanScannerScreenState extends State<LanScannerScreen> {
   }
 
   Widget _buildDeviceCard(LanDevice device) {
+    final s = AppState.instance.strings;
     IconData deviceIcon;
     Color iconColor;
     String category;
@@ -294,81 +287,123 @@ class _LanScannerScreenState extends State<LanScannerScreen> {
     if (device.isLocalDevice) {
       deviceIcon = Icons.smartphone_rounded;
       iconColor = AppColors.success;
-      category = 'Personal Device';
+      category = s.personalDevice;
     } else if (device.vendor?.toLowerCase().contains('apple') ?? false) {
       deviceIcon = Icons.laptop_mac_rounded;
       iconColor = context.netChui.text;
-      category = 'Apple Device';
+      category = s.appleDevice;
     } else if (device.vendor?.toLowerCase().contains('samsung') ?? false) {
       deviceIcon = Icons.phone_android_rounded;
       iconColor = AppColors.info;
-      category = 'Mobile Device';
+      category = s.mobileDevice;
     } else if (device.vendor?.toLowerCase().contains('amazon') ?? false || (device.vendor?.toLowerCase().contains('google') ?? false)) {
       deviceIcon = Icons.smart_button_rounded;
       iconColor = AppColors.warning;
-      category = 'Smart Home';
+      category = s.smartHome;
     } else {
       deviceIcon = Icons.devices_rounded;
       iconColor = AppColors.secondary;
-      category = 'Generic Device';
+      category = s.genericDevice;
     }
 
     return GlassCard(
       padding: EdgeInsets.zero,
       onTap: () => _showDeviceDetails(device),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: IntrinsicHeight(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              width: 52,
-              height: 52,
+              width: 4,
               decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(
-                deviceIcon,
                 color: iconColor,
-                size: 24,
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(2)),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: iconColor.withValues(alpha: 0.15)),
+                ),
+                child: Icon(
+                  deviceIcon,
+                  color: iconColor,
+                  size: 24,
+                ),
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    device.ip,
-                    style: const TextStyle(fontWeight: FontWeight.w900, fontFamily: 'JetBrainsMono', fontSize: 16, letterSpacing: -0.5),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    device.name ?? category,
-                    style: TextStyle(color: context.netChui.muted, fontWeight: FontWeight.w600, fontSize: 13),
-                  ),
-                  if (device.vendor != null)
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      device.vendor!.toUpperCase(),
-                      style: TextStyle(color: context.netChui.muted.withValues(alpha: 0.5), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                      device.ip,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900, 
+                        fontFamily: 'JetBrainsMono', 
+                        fontSize: 16, 
+                        letterSpacing: -0.8
+                      ),
                     ),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      device.name ?? category,
+                      style: TextStyle(
+                        color: context.netChui.text, 
+                        fontWeight: FontWeight.w800, 
+                        fontSize: 13,
+                        letterSpacing: -0.2
+                      ),
+                    ),
+                    if (device.vendor != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        device.vendor!.toUpperCase(),
+                        style: TextStyle(
+                          color: context.netChui.muted, 
+                          fontSize: 9, 
+                          fontWeight: FontWeight.w900, 
+                          letterSpacing: 0.8
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
+            const SizedBox(width: 8),
             if (device.isLocalDevice)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  AppState.instance.strings.you,
-                  style: const TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.success.withValues(alpha: 0.15)),
+                  ),
+                  child: Text(
+                    AppState.instance.strings.you,
+                    style: const TextStyle(
+                      color: AppColors.success, 
+                      fontSize: 10, 
+                      fontWeight: FontWeight.w900, 
+                      letterSpacing: 0.5
+                    ),
+                  ),
                 ),
               )
             else
               Icon(Icons.chevron_right_rounded, size: 20, color: context.netChui.subtle),
+            const SizedBox(width: 16),
           ],
         ),
       ),

@@ -796,6 +796,24 @@ abstract class AppLocalizations {
   /// **'Network Tools'**
   String get networkTools;
 
+  /// No description provided for @dataManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Management'**
+  String get dataManagement;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @support.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get support;
+
   /// No description provided for @theme.
   ///
   /// In en, this message translates to:
@@ -867,6 +885,618 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy'**
   String get privacy;
+
+  /// No description provided for @faq.
+  ///
+  /// In en, this message translates to:
+  /// **'FAQ'**
+  String get faq;
+
+  /// No description provided for @faqTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequently Asked Questions'**
+  String get faqTitle;
+
+  /// No description provided for @faqSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search questions...'**
+  String get faqSearch;
+
+  /// No description provided for @faqCatGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get faqCatGeneral;
+
+  /// No description provided for @faqCatTechnical.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical'**
+  String get faqCatTechnical;
+
+  /// No description provided for @faqCatPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Security & Privacy'**
+  String get faqCatPrivacy;
+
+  /// No description provided for @appGuides.
+  ///
+  /// In en, this message translates to:
+  /// **'App Guides'**
+  String get appGuides;
+
+  /// No description provided for @guidesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App Guides & Tutorials'**
+  String get guidesTitle;
+
+  /// No description provided for @guidesSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search guides...'**
+  String get guidesSearch;
+
+  /// No description provided for @guidesCatBasics.
+  ///
+  /// In en, this message translates to:
+  /// **'The Basics'**
+  String get guidesCatBasics;
+
+  /// No description provided for @guidesCatOptimization.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimization'**
+  String get guidesCatOptimization;
+
+  /// No description provided for @guidesCatAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Tech'**
+  String get guidesCatAdvanced;
+
+  /// No description provided for @faqQ1.
+  ///
+  /// In en, this message translates to:
+  /// **'How accurate are the speed tests?'**
+  String get faqQ1;
+
+  /// No description provided for @faqA1.
+  ///
+  /// In en, this message translates to:
+  /// **'NetChui uses high-performance edge servers (Cloudflare, Tele2, etc.) to ensure low latency and high accuracy. However, results can vary based on network congestion and your device\'s hardware.'**
+  String get faqA1;
+
+  /// No description provided for @faqQ2.
+  ///
+  /// In en, this message translates to:
+  /// **'What is Jitter?'**
+  String get faqQ2;
+
+  /// No description provided for @faqA2.
+  ///
+  /// In en, this message translates to:
+  /// **'Jitter is the variation in time delay between data packets sent over a network. Lower jitter means a more stable connection, which is crucial for gaming and video calls.'**
+  String get faqA2;
+
+  /// No description provided for @faqQ3.
+  ///
+  /// In en, this message translates to:
+  /// **'Does this app use a lot of data?'**
+  String get faqQ3;
+
+  /// No description provided for @faqA3.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard tests use about 20-50MB. Quick tests use less, while \'Accurate\' tests can use over 100MB to fully saturate your connection.'**
+  String get faqA3;
+
+  /// No description provided for @faqQ4.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is my speed lower than my plan?'**
+  String get faqQ4;
+
+  /// No description provided for @faqA4.
+  ///
+  /// In en, this message translates to:
+  /// **'Speeds advertised by ISPs are \'up to\' values. Factors like Wi-Fi interference, distance from the router, number of connected devices, and background app usage can lower results.'**
+  String get faqA4;
+
+  /// No description provided for @faqQ5.
+  ///
+  /// In en, this message translates to:
+  /// **'2.4GHz vs 5GHz Wi-Fi?'**
+  String get faqQ5;
+
+  /// No description provided for @faqA5.
+  ///
+  /// In en, this message translates to:
+  /// **'2.4GHz has better range but lower speeds. 5GHz (and 6GHz) offers much higher speeds but doesn\'t travel through walls as effectively. Use 5GHz when close to the router.'**
+  String get faqA5;
+
+  /// No description provided for @faqQ6.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is Upload usually slower?'**
+  String get faqQ6;
+
+  /// No description provided for @faqA6.
+  ///
+  /// In en, this message translates to:
+  /// **'Most residential internet plans are \'asymmetric\', meaning they prioritize download bandwidth for streaming and browsing over upload bandwidth.'**
+  String get faqA6;
+
+  /// No description provided for @faqQ7.
+  ///
+  /// In en, this message translates to:
+  /// **'How can I lower my Ping?'**
+  String get faqQ7;
+
+  /// No description provided for @faqA7.
+  ///
+  /// In en, this message translates to:
+  /// **'To lower ping, use a wired Ethernet connection if possible, move closer to your router, close background downloads, and ensure you\'re testing against a server physically close to you.'**
+  String get faqA7;
+
+  /// No description provided for @faqQ8.
+  ///
+  /// In en, this message translates to:
+  /// **'What is a \'Good\' speed?'**
+  String get faqQ8;
+
+  /// No description provided for @faqA8.
+  ///
+  /// In en, this message translates to:
+  /// **'For basic browsing, 5-10 Mbps is enough. For 4K streaming, you need 25+ Mbps. For a smooth multi-user household, 100+ Mbps is recommended.'**
+  String get faqA8;
+
+  /// No description provided for @faqQ9.
+  ///
+  /// In en, this message translates to:
+  /// **'Does NetChui store my location?'**
+  String get faqQ9;
+
+  /// No description provided for @faqA9.
+  ///
+  /// In en, this message translates to:
+  /// **'No. NetChui uses your IP address to estimate your ISP and general region for the test, but we do not track or store your precise GPS location.'**
+  String get faqA9;
+
+  /// No description provided for @faqQ10.
+  ///
+  /// In en, this message translates to:
+  /// **'What is \'Loaded\' Latency?'**
+  String get faqQ10;
+
+  /// No description provided for @faqA10.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded latency measures your ping while your connection is being used (during download or upload). If this is much higher than your normal ping, you may experience lag while others in your house are streaming or downloading.'**
+  String get faqA10;
+
+  /// No description provided for @faqQ11.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I use NetChui for LAN speeds?'**
+  String get faqQ11;
+
+  /// No description provided for @faqA11.
+  ///
+  /// In en, this message translates to:
+  /// **'NetChui is primarily for internet speed. To test LAN speeds between devices, use the LAN Scanner tool to identify devices, but actual transfer speeds depend on your internal hardware capabilities.'**
+  String get faqA11;
+
+  /// No description provided for @faqQ12.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I export my data?'**
+  String get faqQ12;
+
+  /// No description provided for @faqA12.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Settings > Activity Logs > Export All Data. You can save your history and diagnostic logs as a JSON file or generate a PDF report from the Report screen.'**
+  String get faqA12;
+
+  /// No description provided for @faqQ13.
+  ///
+  /// In en, this message translates to:
+  /// **'Will a VPN affect my results?'**
+  String get faqQ13;
+
+  /// No description provided for @faqA13.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. A VPN encrypts your traffic and routes it through another server, which usually increases latency (ping) and may reduce overall download/upload speeds.'**
+  String get faqA13;
+
+  /// No description provided for @faqQ14.
+  ///
+  /// In en, this message translates to:
+  /// **'Mbps vs MB/s: What\'s the difference?'**
+  String get faqQ14;
+
+  /// No description provided for @faqA14.
+  ///
+  /// In en, this message translates to:
+  /// **'Mbps stands for Megabits per second (used for internet speeds). MB/s stands for Megabytes per second (used for file sizes). 8 Mbps = 1 MB/s.'**
+  String get faqA14;
+
+  /// No description provided for @faqQ15.
+  ///
+  /// In en, this message translates to:
+  /// **'How often should I run a test?'**
+  String get faqQ15;
+
+  /// No description provided for @faqA15.
+  ///
+  /// In en, this message translates to:
+  /// **'We recommend testing at different times of the day (morning, afternoon, evening) to see how peak usage in your area affects your performance.'**
+  String get faqA15;
+
+  /// No description provided for @faqQ16.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi vs. Internet Speed?'**
+  String get faqQ16;
+
+  /// No description provided for @faqA16.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Wi-Fi speed is the connection between your device and router. Internet speed is the connection between your router and the world. NetChui measures the end-to-end internet speed from your device.'**
+  String get faqA16;
+
+  /// No description provided for @faqQ17.
+  ///
+  /// In en, this message translates to:
+  /// **'Can weather affect speed?'**
+  String get faqQ17;
+
+  /// No description provided for @faqA17.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, especially for satellite and fixed-wireless connections. Heavy rain or snow (rain fade) can degrade signal quality and reduce speeds or increase latency.'**
+  String get faqA17;
+
+  /// No description provided for @faqQ18.
+  ///
+  /// In en, this message translates to:
+  /// **'What is Packet Loss?'**
+  String get faqQ18;
+
+  /// No description provided for @faqA18.
+  ///
+  /// In en, this message translates to:
+  /// **'Packet loss occurs when data units fail to reach their destination. It can cause \'stuttering\' in video calls or gaming. NetChui identifies stability issues in the Live Monitor.'**
+  String get faqA18;
+
+  /// No description provided for @faqQ19.
+  ///
+  /// In en, this message translates to:
+  /// **'Why use DNS Speed Test?'**
+  String get faqQ19;
+
+  /// No description provided for @faqA19.
+  ///
+  /// In en, this message translates to:
+  /// **'DNS is like a phonebook for the internet. Faster DNS means your browser finds websites quicker, making the internet feel much more responsive.'**
+  String get faqA19;
+
+  /// No description provided for @faqQ20.
+  ///
+  /// In en, this message translates to:
+  /// **'What is Bufferbloat?'**
+  String get faqQ20;
+
+  /// No description provided for @faqA20.
+  ///
+  /// In en, this message translates to:
+  /// **'Bufferbloat is high latency that occurs when there is a lot of traffic on your network. It\'s caused by routers buffering too much data. NetChui\'s \'Loaded Latency\' helps identify this.'**
+  String get faqA20;
+
+  /// No description provided for @faqQ21.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is my ping different in games?'**
+  String get faqQ21;
+
+  /// No description provided for @faqA21.
+  ///
+  /// In en, this message translates to:
+  /// **'Game pings depend on the location of the game\'s specific servers. NetChui tests against general edge servers. If the game server is further away, your ping will be higher.'**
+  String get faqA21;
+
+  /// No description provided for @faqQ22.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I trust \'Free Wi-Fi\'?'**
+  String get faqQ22;
+
+  /// No description provided for @faqA22.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Wi-Fi networks can be risky. We recommend using NetChui\'s Port Scan and Security Audit to check for common vulnerabilities when connected to public networks.'**
+  String get faqA22;
+
+  /// No description provided for @faqQ23.
+  ///
+  /// In en, this message translates to:
+  /// **'Does my device age matter?'**
+  String get faqQ23;
+
+  /// No description provided for @faqA23.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. Older phones or laptops may have slower Wi-Fi chips (e.g., Wi-Fi 4 instead of Wi-Fi 6), which limits the maximum speed they can handle regardless of your internet plan.'**
+  String get faqA23;
+
+  /// No description provided for @faqQ24.
+  ///
+  /// In en, this message translates to:
+  /// **'How does NetChui choose a server?'**
+  String get faqQ24;
+
+  /// No description provided for @faqA24.
+  ///
+  /// In en, this message translates to:
+  /// **'By default, NetChui selects the server with the lowest latency to your location. You can manually override this in Settings if you want to test connectivity to a specific region.'**
+  String get faqA24;
+
+  /// No description provided for @faqQ25.
+  ///
+  /// In en, this message translates to:
+  /// **'Can I change the test unit?'**
+  String get faqQ25;
+
+  /// No description provided for @faqA25.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently, NetChui displays results in Mbps (Megabits per second) as it is the industry standard for network speed. We are looking into adding a MB/s toggle in future updates.'**
+  String get faqA25;
+
+  /// No description provided for @faqQ26.
+  ///
+  /// In en, this message translates to:
+  /// **'Does my device case affect Wi-Fi?'**
+  String get faqQ26;
+
+  /// No description provided for @faqA26.
+  ///
+  /// In en, this message translates to:
+  /// **'Metal or very thick plastic cases can occasionally attenuate Wi-Fi and cellular signals. If you notice significantly lower speeds, try testing without the case.'**
+  String get faqA26;
+
+  /// No description provided for @faqQ27.
+  ///
+  /// In en, this message translates to:
+  /// **'Why does my speed drop at night?'**
+  String get faqQ27;
+
+  /// No description provided for @faqA27.
+  ///
+  /// In en, this message translates to:
+  /// **'Network congestion often peaks in the evening when more people in your neighborhood are streaming video. This is common on cable and fixed-wireless networks.'**
+  String get faqA27;
+
+  /// No description provided for @faqQ28.
+  ///
+  /// In en, this message translates to:
+  /// **'What is a \'Handshake\'?'**
+  String get faqQ28;
+
+  /// No description provided for @faqA28.
+  ///
+  /// In en, this message translates to:
+  /// **'A network handshake is the automated process of negotiation between two devices to establish a connection. High latency can make this process feel sluggish.'**
+  String get faqA28;
+
+  /// No description provided for @faqQ29.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I read the Signal Graph?'**
+  String get faqQ29;
+
+  /// No description provided for @faqA29.
+  ///
+  /// In en, this message translates to:
+  /// **'The graph shows your signal strength over time. A flat line means a stable connection, while sharp \'valleys\' indicate interference or physical obstructions.'**
+  String get faqA29;
+
+  /// No description provided for @faqQ30.
+  ///
+  /// In en, this message translates to:
+  /// **'What are \'Open Ports\'?'**
+  String get faqQ30;
+
+  /// No description provided for @faqA30.
+  ///
+  /// In en, this message translates to:
+  /// **'Ports are virtual doorways for data. While some are necessary, unnecessary open ports can be a security risk. NetChui\'s Port Scan helps you identify these.'**
+  String get faqA30;
+
+  /// No description provided for @guide1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Understanding Results'**
+  String get guide1Title;
+
+  /// No description provided for @guide1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn what Ping, Download, and Upload speeds mean for your daily internet usage.'**
+  String get guide1Body;
+
+  /// No description provided for @guide2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimizing Wi-Fi'**
+  String get guide2Title;
+
+  /// No description provided for @guide2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips on router placement and frequency selection to improve your home network.'**
+  String get guide2Body;
+
+  /// No description provided for @guide3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'4G vs 5G Explained'**
+  String get guide3Title;
+
+  /// No description provided for @guide3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'The differences in latency and speed when using cellular data and how to get the best signal.'**
+  String get guide3Body;
+
+  /// No description provided for @guide4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Troubleshooting Slow Internet'**
+  String get guide4Title;
+
+  /// No description provided for @guide4Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Step-by-step guide to identify if the issue is with your device, router, or your Service Provider.'**
+  String get guide4Body;
+
+  /// No description provided for @guide5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Best Practices'**
+  String get guide5Title;
+
+  /// No description provided for @guide5Body.
+  ///
+  /// In en, this message translates to:
+  /// **'How to stay safe on public Wi-Fi and why NetChui\'s security audit is important.'**
+  String get guide5Body;
+
+  /// No description provided for @guide6Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Router Settings'**
+  String get guide6Title;
+
+  /// No description provided for @guide6Body.
+  ///
+  /// In en, this message translates to:
+  /// **'A look into QoS, DNS overrides, and firmware updates to squeeze every bit of speed out of your hardware.'**
+  String get guide6Body;
+
+  /// No description provided for @guide7Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Interpreting Insights'**
+  String get guide7Title;
+
+  /// No description provided for @guide7Body.
+  ///
+  /// In en, this message translates to:
+  /// **'How to use the Insights tab to track your network health score and stability over time.'**
+  String get guide7Body;
+
+  /// No description provided for @guide8Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Combating Interference'**
+  String get guide8Title;
+
+  /// No description provided for @guide8Body.
+  ///
+  /// In en, this message translates to:
+  /// **'How common household items like microwaves and cordless phones can disrupt your Wi-Fi signal.'**
+  String get guide8Body;
+
+  /// No description provided for @guide9Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Mesh vs. Extenders'**
+  String get guide9Title;
+
+  /// No description provided for @guide9Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Which technology is better for covering large homes and how they impact your overall throughput.'**
+  String get guide9Body;
+
+  /// No description provided for @guide10Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Caps & Throttling'**
+  String get guide10Title;
+
+  /// No description provided for @guide10Body.
+  ///
+  /// In en, this message translates to:
+  /// **'How to tell if your ISP is intentionally slowing down your connection based on your usage.'**
+  String get guide10Body;
+
+  /// No description provided for @guide11Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Gaming Lag Fixes'**
+  String get guide11Title;
+
+  /// No description provided for @guide11Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Techniques like using Ethernet, disabling background updates, and choosing the right game servers.'**
+  String get guide11Body;
+
+  /// No description provided for @guide12Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Home Office Setup'**
+  String get guide12Title;
+
+  /// No description provided for @guide12Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimizing your network for stable Zoom and Teams calls without dropouts or \'robotic\' audio.'**
+  String get guide12Body;
+
+  /// No description provided for @guide13Title.
+  ///
+  /// In en, this message translates to:
+  /// **'LAN Scanner Security'**
+  String get guide13Title;
+
+  /// No description provided for @guide13Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Using the LAN scanner to find unauthorized devices connected to your private Wi-Fi network.'**
+  String get guide13Body;
+
+  /// No description provided for @guide14Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery & Background Scanning'**
+  String get guide14Title;
+
+  /// No description provided for @guide14Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Understanding how NetChui balances real-time signal monitoring with your device\'s battery life.'**
+  String get guide14Body;
+
+  /// No description provided for @guide15Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Future Proofing Your Home'**
+  String get guide15Title;
+
+  /// No description provided for @guide15Body.
+  ///
+  /// In en, this message translates to:
+  /// **'What to look for in your next router (Wi-Fi 6E/7) to ensure your home network stays fast for years.'**
+  String get guide15Body;
 
   /// No description provided for @trend.
   ///
@@ -1893,6 +2523,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Speed History'**
   String get speedHistory;
+
+  /// No description provided for @exportAllData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export All Data'**
+  String get exportAllData;
+
+  /// No description provided for @dnsError.
+  ///
+  /// In en, this message translates to:
+  /// **'DNS Error'**
+  String get dnsError;
+
+  /// No description provided for @whoisError.
+  ///
+  /// In en, this message translates to:
+  /// **'WHOIS Error'**
+  String get whoisError;
+
+  /// No description provided for @portScanError.
+  ///
+  /// In en, this message translates to:
+  /// **'Port Scan Error'**
+  String get portScanError;
+
+  /// No description provided for @noRecordsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No records found for {host}'**
+  String noRecordsFound(Object host);
+
+  /// No description provided for @noPortsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No common open ports found on {host}'**
+  String noPortsFound(Object host);
+
+  /// No description provided for @whoisInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'WHOIS Info'**
+  String get whoisInfo;
+
+  /// No description provided for @retrievedWhois.
+  ///
+  /// In en, this message translates to:
+  /// **'Retrieved record for {host}'**
+  String retrievedWhois(Object host);
+
+  /// No description provided for @clearActivityLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Activity Logs'**
+  String get clearActivityLogs;
+
+  /// No description provided for @clearActivityLogsConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete all activity logs and signal history?'**
+  String get clearActivityLogsConfirm;
+
+  /// No description provided for @deleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete All'**
+  String get deleteAll;
+
+  /// No description provided for @runningTool.
+  ///
+  /// In en, this message translates to:
+  /// **'RUNNING {tool}...'**
+  String runningTool(Object tool);
+
+  /// No description provided for @personalDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Device'**
+  String get personalDevice;
+
+  /// No description provided for @appleDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Device'**
+  String get appleDevice;
+
+  /// No description provided for @mobileDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Device'**
+  String get mobileDevice;
+
+  /// No description provided for @smartHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Home'**
+  String get smartHome;
+
+  /// No description provided for @performanceEmptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'Start your first speed test to see performance trends here.'**
+  String get performanceEmptyState;
+
+  /// No description provided for @signalEmptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'Your signal strength over time will appear here as you move around.'**
+  String get signalEmptyState;
+
+  /// No description provided for @activityEmptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'All your diagnostic runs and network scans will be logged here.'**
+  String get activityEmptyState;
+
+  /// No description provided for @scanError.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan error: {error}'**
+  String scanError(Object error);
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
 }
 
 class _AppLocalizationsDelegate
